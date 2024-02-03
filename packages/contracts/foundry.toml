@@ -1,0 +1,20 @@
+[profile.default]
+solc = "0.8.23"
+ffi = false
+fuzz_runs = 256
+optimizer = true
+optimizer_runs = 3000
+verbosity = 2
+src = "src"
+test = "test"
+out = "out"
+allow_paths = [
+  # monorepo's node_modules
+  "../../node_modules",
+  "node_modules"
+]
+extra_output_files = [
+  "abi",
+  "evm.bytecode"
+]
+fs_permissions = [{ access = "read", path = "./"}]
