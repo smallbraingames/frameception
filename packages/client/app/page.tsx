@@ -1,6 +1,6 @@
 import { getFrameMetadata } from '@coinbase/onchainkit';
 
-const NEXT_PUBLIC_URL = 'https://frameception.vercel.app';
+const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
 const frameMetadata = getFrameMetadata({
   buttons: [

@@ -1,7 +1,7 @@
 import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit';
 import { NextRequest, NextResponse } from 'next/server';
 
-const NEXT_PUBLIC_URL = 'https://frameception.vercel.app';
+const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let text: string | undefined = '';
