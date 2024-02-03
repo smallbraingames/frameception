@@ -1,7 +1,5 @@
 {
   "name": "contracts",
-  "module": "index.ts",
-  "type": "module",
   "scripts": {
     "lint": "forge fmt && pnpm run solhint",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix"
