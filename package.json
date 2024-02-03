@@ -1,0 +1,8 @@
+{
+  "name": "frameception",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
