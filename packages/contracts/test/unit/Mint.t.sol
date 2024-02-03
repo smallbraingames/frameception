@@ -17,7 +17,7 @@ contract DeployTest is BaseTest {
         vm.prank(owner);
         collection.mint(owner, id);
 
-        (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
+        (, uint256 cMinted,) = collection.infoOf(id);
 
         assertEq(cMinted, 2);
 
