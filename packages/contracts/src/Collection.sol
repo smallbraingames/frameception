@@ -7,6 +7,9 @@ import { ERC1155 } from "solmate/tokens/ERC1155.sol";
 import { LibString } from "solmate/utils/LibString.sol";
 
 contract Collection is ERC1155, Owned {
+    // ======= EVENTS ========
+    event Created(address indexed creator, uint256 indexed id, uint256 supply);
+
     // ======= ERRORS ========
 
     error NotCreated();
@@ -47,6 +50,9 @@ contract Collection is ERC1155, Owned {
         infoOf[id].supply = supply;
         mint(creator, id);
         lastId = id;
+
+        emit Created(creator, id, supply);
+
         return id;
     }
 
