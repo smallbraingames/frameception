@@ -1,22 +1,26 @@
+import Privy from '@/components/Privy';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Frameception',
-  description: 'Create a frame within a frame.',
+  description: 'Create a frame... from WITHIN a frame',
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <html lang='en'>
-      <body className={inter.className}>{children}</body>
+      <body>
+        {' '}
+        <Privy>{children}</Privy>
+      </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

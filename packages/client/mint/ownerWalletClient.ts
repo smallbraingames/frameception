@@ -1,5 +1,6 @@
 import { Hex, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+
 import chain from './chain';
 
 const ownerWalletPrivateKey = process.env.OWNER_WALLET_PRIVATE_KEY as
