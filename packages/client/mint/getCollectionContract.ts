@@ -24,10 +24,13 @@ export const getReadCollectionContract = (publicClient: PublicClient) => {
   });
 };
 
-export const getWriteCollectionContract = (walletClient: WalletClient) => {
+export const getWriteCollectionContract = (
+  publicClient: PublicClient,
+  walletClient: WalletClient
+) => {
   return getContract({
     abi: collectionAbi,
     address: contractAddress,
-    client: { wallet: walletClient },
+    client: { public: publicClient, wallet: walletClient },
   });
 };
