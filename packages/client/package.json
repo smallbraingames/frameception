@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.4.3",
+    "@vercel/kv": "^1.0.1",
     "contracts": "*",
     "next": "14.1.0",
     "react": "^18",
