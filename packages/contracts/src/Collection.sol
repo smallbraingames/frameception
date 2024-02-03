@@ -19,6 +19,7 @@ contract Collection is ERC1155, Owned {
 
     string public baseURI;
     mapping(uint256 => Info) public infoOf;
+    uint256 public lastId = 0;
 
     constructor(address owner, string memory tokenURI) Owned(owner) {
         baseURI = tokenURI;
@@ -30,7 +31,8 @@ contract Collection is ERC1155, Owned {
         return string(abi.encodePacked(baseURI, LibString.toString(id)));
     }
 
-    function create(address creator, uint256 supply, uint256 id) public onlyOwner {
+    function create(address creator, uint256 supply) public onlyOwner returns (uint256) {
+        uint256 id = lastId + 1;
         Info storage info = infoOf[id];
         if (info.supply != 0 || info.minted != 0 || info.creator != address(0)) {
             revert AlreadyCreated();
@@ -44,6 +46,8 @@ contract Collection is ERC1155, Owned {
         infoOf[id].creator = creator;
         infoOf[id].supply = supply;
         mint(creator, id);
+        lastId = id;
+        return id;
     }
 
     function mint(address account, uint256 id) public onlyOwner {
