@@ -45,7 +45,7 @@ contract CreateTest is BaseTest {
         assertEq(cCreator, creator);
     }
 
-    function testRevertsWhen_ZeroSupply() public {
+    function test_RevertsWhen_ZeroSupply() public {
         address owner = address(0xface);
         string memory tokenURI = "https://example.com/";
 
@@ -61,7 +61,7 @@ contract CreateTest is BaseTest {
         collection.create(creator, supply);
     }
 
-    function testRevertsWhen_ZeroAddressCreator() public {
+    function test_RevertsWhen_ZeroAddressCreator() public {
         address owner = address(0xface);
         string memory tokenURI = "https://example.com/";
 
