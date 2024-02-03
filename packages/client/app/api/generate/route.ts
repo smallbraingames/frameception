@@ -12,6 +12,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   if (body?.untrustedData?.inputText) {
     text = body.untrustedData.inputText;
     console.log('text: ', text);
+    // TODO: create image based on text
   }
 
   if (body?.untrustedData?.buttonIndex) {
@@ -19,7 +20,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     console.log('buttonIndex: ', buttonIndex);
 
     if (buttonIndex === 2) {
-      return NextResponse.redirect('https://frameception.vercel.app', {
+        // TDOO: redirect to NFT creation page
+      return NextResponse.redirect(NEXT_PUBLIC_URL, {
         status: 302,
       });
     }
