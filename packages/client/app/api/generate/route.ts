@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
-async function getResponse(req: NextRequest): Promise<NextResponse> {
+const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   let text: string | undefined = '';
   let buttonIndex: number | undefined = undefined;
 
@@ -20,7 +20,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     console.log('buttonIndex: ', buttonIndex);
 
     if (buttonIndex === 2) {
-        // TDOO: redirect to NFT creation page
+      // TDOO: redirect to NFT creation page
       return NextResponse.redirect(NEXT_PUBLIC_URL, {
         status: 302,
       });
@@ -45,10 +45,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       post_url: `${NEXT_PUBLIC_URL}/api/generate`,
     })
   );
-}
+};
 
-export async function POST(req: NextRequest): Promise<Response> {
+export const POST = async (req: NextRequest): Promise<Response> => {
   return getResponse(req);
-}
+};
 
 export const dynamic = 'force-dynamic';

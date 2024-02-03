@@ -1,7 +1,8 @@
 import { Address } from 'viem';
+
 import { getWriteCollectionContract } from './getCollectionContract';
-import ownerWalletClient from './ownerWalletClient';
 import getTransactionReceipt from './getTransactionReceipt';
+import ownerWalletClient from './ownerWalletClient';
 import publicClient from './publicClient';
 
 const mint = async (to: Address, id: number) => {

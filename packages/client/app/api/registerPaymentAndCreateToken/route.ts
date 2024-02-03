@@ -3,20 +3,20 @@ import create from '@/mint/create';
 import ownerWalletClient from '@/mint/ownerWalletClient';
 import publicClient from '@/mint/publicClient';
 import { kv } from '@vercel/kv';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Hex } from 'viem';
+import { NextRequest, NextResponse } from 'next/server';
+import { Hex, getAddress } from 'viem';
 
 const MAX_SUPPLY = 1e6;
 
 const getKey = (chainId: number, hash: Hex) => `${chainId}:${hash}`;
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const hash = req.body.hash as Hex | undefined;
-  const supply = req.body.supply as number | undefined;
+const getResponse = async (req: NextRequest): Promise<NextResponse> => {
+  const body = await req.json();
+  const hash = body.hash as Hex | undefined;
+  const supply = body.supply as number | undefined;
 
   if (!hash || hash.slice(0, 2) !== '0x') {
-    res.status(400).json({ message: 'Invalid hash' });
-    return;
+    return NextResponse.json({ message: 'Invalid hash' }, { status: 500 });
   }
 
   if (
@@ -25,8 +25,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     supply > MAX_SUPPLY ||
     !Number.isInteger(supply)
   ) {
-    res.status(400).json({ message: 'Invalid supply' });
-    return;
+    return NextResponse.json({ message: 'Invalid supply' }, { status: 500 });
   }
 
   const transaction = await publicClient.getTransaction({
@@ -36,26 +35,36 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const chainId = chain.id;
   const sender = transaction.from;
   const value = transaction.value;
-  const to = transaction.to;
-  const ownerAddress = ownerWalletClient.account.address;
+  if (!transaction.to) {
+    return NextResponse.json(
+      { message: 'Invalid transaction: No to' },
+      { status: 500 }
+    );
+  }
+  const to = getAddress(transaction.to);
+  const ownerAddress = getAddress(ownerWalletClient.account.address);
 
   if (to !== ownerAddress) {
-    res.status(400).json({ message: 'Invalid transaction: Not t' });
-    return;
+    return NextResponse.json(
+      { message: 'Invalid transaction: Not to owner' },
+      { status: 500 }
+    );
   }
 
   if (value <= 0) {
-    res.status(400).json({ message: 'Invalid transaction: No value' });
-    return;
+    return NextResponse.json(
+      { message: 'Invalid transaction: Zero value' },
+      { status: 500 }
+    );
   }
 
   const key = getKey(chainId, hash);
   const hasUsedPayment = await kv.get(key);
   if (hasUsedPayment) {
-    res
-      .status(400)
-      .json({ message: 'Invalid transaction: Already used payment tx' });
-    return;
+    return NextResponse.json(
+      { message: 'Invalid transaction: Already used hash' },
+      { status: 500 }
+    );
   }
 
   await kv.set(key, true);
@@ -77,20 +86,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         `[RegisterPaymentAndCreateToken] Error refunding user: (sender) ${sender}, (to) ${to}, (value) ${value}, (hash) ${hash}, (chainId) ${chainId}`,
         e
       );
-      res
-        .status(500)
-        .json({ message: 'Error creating token, and error refunding user' });
-      return;
+      return NextResponse.json(
+        { message: 'Invalid transaction: Already used hash' },
+        { status: 500 }
+      );
     }
-    res.status(500).json({ message: 'Error creating token, refunded' });
-    return;
+    return NextResponse.json(
+      { message: 'Error creating token, refunded' },
+      { status: 500 }
+    );
   }
 
   console.log(
     `[RegisterPaymentAndCreateToken] Created token: (sender) ${sender}, (to) ${to}, (value) ${value}, (hash) ${hash}, (chainId) ${chainId}`
   );
 
-  res.status(200).json({ message: 'Created' });
+  return NextResponse.json({ message: 'Created' }, { status: 200 });
 };
 
-export default handler;
+export const POST = async (req: NextRequest): Promise<Response> => {
+  return getResponse(req);
+};
+
+export const dynamic = 'force-dynamic';

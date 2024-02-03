@@ -1,4 +1,5 @@
 import { Hex } from 'viem';
+
 import publicClient from './publicClient';
 
 const getTransactionReceipt = async (hash: Hex) => {
