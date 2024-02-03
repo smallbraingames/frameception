@@ -1,5 +1,11 @@
 import collectionAbi from 'contracts/out/Collection.sol/Collection.abi.json';
-import { Address, PublicClient, WalletClient, getContract } from 'viem';
+import {
+  Address,
+  GetContractReturnType,
+  PublicClient,
+  WalletClient,
+  getContract,
+} from 'viem';
 
 const contractAddress = process.env.NEXT_PUBLIC_COLLECTION_CONTRACT_ADDRESS as
   | Address
@@ -10,15 +16,18 @@ if (!contractAddress) {
   );
 }
 
-const getCollectionContract = (
-  publicClient: PublicClient,
-  walletClient?: WalletClient
-) => {
+export const getReadCollectionContract = (publicClient: PublicClient) => {
   return getContract({
     abi: collectionAbi,
     address: contractAddress,
-    client: { public: publicClient, wallet: walletClient },
+    client: { public: publicClient },
   });
 };
 
-export default getCollectionContract;
+export const getWriteCollectionContract = (walletClient: WalletClient) => {
+  return getContract({
+    abi: collectionAbi,
+    address: contractAddress,
+    client: { wallet: walletClient },
+  });
+};
