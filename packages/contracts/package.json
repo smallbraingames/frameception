@@ -1,9 +1,17 @@
 {
   "name": "contracts",
-  "module": "index.ts",
-  "type": "module",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "lint": "forge fmt && pnpm run solhint",
+    "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "ds-test": "https://github.com/dapphub/ds-test.git#e282159d5170298eb2455a6c05280ab5a73a4ef0",
+    "forge-std": "https://github.com/foundry-rs/forge-std.git#ae570fec082bfe1c1f45b0acca4a2b4f84d345ce",
+    "solhint": "^4.1.1",
+    "solmate": "^6.2.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
