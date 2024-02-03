@@ -1,28 +1,27 @@
 import { getFrameMetadata } from '@coinbase/onchainkit';
 
-const NEXT_PUBLIC_URL = 'https://seedclub.xyz';
+const NEXT_PUBLIC_URL = 'https://frameception.vercel.app';
 
 const frameMetadata = getFrameMetadata({
   buttons: [
     {
-      label: 'Learn more',
-      action: 'post_redirect',
+      label: 'Create artwork',
     },
   ],
   input: {
-    text: 'Submit your email',
+    text: 'Write your prompt here',
   },
-  image: `${NEXT_PUBLIC_URL}/meta.png`,
-  post_url: `${NEXT_PUBLIC_URL}/api/redirect`,
+  image: `${NEXT_PUBLIC_URL}/dummy.png`,
+  post_url: `${NEXT_PUBLIC_URL}/api/generate`,
 });
 
 export const metadata = {
-  title: 'Seed Club',
-  description: 'Make something people want to be a part of',
+  title: 'Frameception',
+  description: 'Create a frame within a frame.',
   openGraph: {
-    title: 'Seed Club',
-    description: 'Make something people want to be a part of',
-    images: [`${NEXT_PUBLIC_URL}/meta2.png`],
+    title: 'Frameception',
+    description: 'Create a frame within a frame.',
+    images: [`${NEXT_PUBLIC_URL}/dummy.png`],
   },
   other: {
     ...frameMetadata,
