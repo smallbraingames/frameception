@@ -10,6 +10,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Address, createWalletClient, custom, formatEther } from 'viem';
+import Link from 'next/link';
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -17,9 +18,9 @@ if (!ownerPublicKey) {
 }
 
 const Create = () => {
-  const { user } = usePrivy();
+  const { user, logout } = usePrivy();
   const { wallets } = useWallets();
-  const [supply, setSupply] = useState(1000);
+  const [supply, setSupply] = useState(100);
   const searchParams = useSearchParams();
   const url = searchParams.get('url');
   const [error, setError] = useState<string | null>(null);
@@ -104,75 +105,96 @@ const Create = () => {
     }
   };
 
+  const formatAddress = (address: `0x${string}` | undefined) => {
+    return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
+  };
+
+  const cost = `${pricePerSupply ?  formatEther(BigInt(supply) * pricePerSupply) : "-" } ETH`; 
+
   return (
-    <div className='max-w-md mx-auto'>
-      <ConnectButton />
-      {url && (
-        <div className='py-2'>
-          <img src={url} className='w-full' />
+    <div className='max-w-sm mx-auto pt-10'>
+      {user ? (
+        <div className='flex flex-col gap-2 text-xs'>
+          <p>You're connected as {formatAddress(address)}. <button onClick={logout} className='border-b-2 border-gray-400'>Change wallet</button></p>
+
+        </div>
+      ) : (
+        <div className='flex flex-col gap-4'>
+          <p className="text-sm">
+            You
+            arrived here from a frame and now you have the opportunity to
+            create a frame within a frame. The frame you create will let others mint the image you created.
+          </p>
+          { url && <img src={url} className='w-full ' />}
+    
+          <p className="text-sm">
+            Connect your wallet and create a frame link that'll let collectors mint for free.
+          </p>
+          <ConnectButton />
         </div>
       )}
 
-      {!tokenId && (
+      {url && user && (
+        <div className='py-4'>
+          <img src={url} className='w-full ' />
+        </div>
+      )}
+
+
+
+      {!tokenId && user && (
         <div>
-          <div className='py-2'>
-            <label className='block text-stone-100 font-bold'>Supply</label>
-            <div className='flex'>
+          <div className=''>
+            <p className='text-sm pb-2'>How many NFTs would you like to distribute?</p>
+            <div className='flex gap-2'>
               <button
                 onClick={() => setSupply(100)}
-                className={`  ${supply === 100 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+                className={`${supply === 100 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 100
               </button>
               <button
                 onClick={() => setSupply(500)}
-                className={`  ${supply === 500 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+                className={`${supply === 500 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 500
               </button>
               <button
                 onClick={() => setSupply(1000)}
-                className={`  ${supply === 1000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+                className={`${supply === 1000 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 1,000
               </button>
             </div>
           </div>
-          <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
+          <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900 mt-2'>
             <button
               onClick={createToken}
               type='button'
               className='h-full w-full'
             >
-              Get Frame Link (
-              {pricePerSupply
-                ? formatEther(BigInt(supply) * pricePerSupply)
-                : '-'}{' '}
-              ETH)
+              Get Frame Link ({cost})
             </button>
+            
           </div>
+          <p className='py-2 text-xs'>The first {supply} collectors will mint the NFT for free. We'll use some of the {cost} to pay for gas.</p>
         </div>
       )}
-
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
-        <div>
-          <p>
-            Your new frame link:{' '}
-            {`${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`}{' '}
-          </p>
           <button
-            onClick={() => {
-              navigator.clipboard.writeText(
-                `${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`
-              );
-              toast.success('Copied to clipboard');
-            }}
-          >
-            Copy link
-          </button>
-        </div>
+          className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`
+            );
+            toast.success('Copied to clipboard');
+          }}
+        >
+          Copy Your Frame Link
+        </button>
       )}
+      <p className='text-xs pt-2'>Copy and cast your frame link on <Link className='border-b-2 border-gray-400' href="https://warpcast.com" target="_blank">Warpcast</Link>.</p>
     </div>
   );
 };
