@@ -31,8 +31,11 @@ contract CreateTest is BaseTest {
     function testFuzz_CreateToken(address owner, string memory tokenURI, address creator, uint256 supply) external {
         assumeValidPayableAddress(owner);
         assumeValidPayableAddress(creator);
-        supply = bound(supply, 20, 10_000);
         Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
+        vm.assume(creator != address(collection));
+        vm.assume(creator != owner);
+
+        supply = bound(supply, 20, 10_000);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 

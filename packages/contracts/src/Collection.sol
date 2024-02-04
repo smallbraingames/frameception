@@ -57,11 +57,12 @@ contract Collection is ERC1155, Owned {
             revert NotEnoughValue();
         }
 
-        infoOf[id].creator = creator;
-        infoOf[id].supply = supply;
+        info.creator = creator;
+        info.supply = supply;
+        info.minted = 1;
         lastId = id;
 
-        mint(creator, id);
+        _mint(creator, id, 1, bytes(""));
         payable(owner).transfer(msg.value);
 
         emit Created(creator, id, supply);

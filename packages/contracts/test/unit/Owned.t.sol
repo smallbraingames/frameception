@@ -48,67 +48,8 @@ contract OwnedTest is BaseTest {
         assertEq(collection.owner(), secondOwner);
     }
 
-    function test_OnlyOwnerCreates() public {
-        address owner = address(0xface);
-        vm.deal(owner, 1 ether);
-        string memory tokenURI = "https://example.com/";
-
-        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
-        assertEq(collection.owner(), owner);
-
-        address creator = address(0xdead);
-        uint256 supply = 10;
-        vm.expectRevert("UNAUTHORIZED");
-        collection.create{ value: 1 ether }(creator, supply);
-
-        vm.prank(owner);
-        uint256 id = collection.create{ value: 1 ether }(creator, supply);
-
-        (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
-        assertEq(cCreator, creator);
-        assertEq(cSupply, supply);
-        assertEq(cMinted, 1);
-    }
-
-    function testFuzz_OnlyOwnerCreates(
-        address owner,
-        address nonOwner,
-        address creator,
-        uint256 supply,
-        string memory tokenURI
-    )
-        external
-    {
-        assumeValidPayableAddress(owner);
-        assumeValidPayableAddress(nonOwner);
-        assumeValidPayableAddress(creator);
-        vm.assume(owner != nonOwner);
-        vm.assume(owner != creator);
-        vm.assume(creator != address(0));
-        supply = bound(supply, 10, 10_000);
-
-        Collection collection = new Collection(owner, tokenURI, 0.0000001 ether);
-        assertEq(collection.owner(), owner);
-
-        vm.deal(nonOwner, 1 ether);
-        vm.deal(owner, 1 ether);
-
-        vm.prank(nonOwner);
-        vm.expectRevert("UNAUTHORIZED");
-        collection.create{ value: 1 ether }(creator, supply);
-
-        vm.prank(owner);
-        uint256 id = collection.create{ value: 1 ether }(creator, supply);
-
-        (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
-        assertEq(cCreator, creator);
-        assertEq(cSupply, supply);
-        assertEq(cMinted, 1);
-    }
-
     function test_OnlyOwnerMints() public {
         address owner = address(0xface);
-        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
         Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
@@ -117,6 +58,7 @@ contract OwnedTest is BaseTest {
         address creator = address(0xbeef);
         uint256 supply = 10;
 
+        vm.deal(owner, 1 ether);
         vm.prank(owner);
         uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
@@ -145,18 +87,21 @@ contract OwnedTest is BaseTest {
     )
         external
     {
+        Collection collection = new Collection(owner, tokenURI, 0.0000001 ether);
+
         assumeValidPayableAddress(owner);
         assumeValidPayableAddress(nonOwner);
         assumeValidPayableAddress(creator);
         assumeValidPayableAddress(minter);
         vm.assume(owner != nonOwner);
         vm.assume(owner != creator);
+        vm.assume(creator != minter);
         vm.assume(owner != minter);
-        vm.assume(creator != address(0));
-        vm.assume(minter != address(0));
+        vm.assume(creator != address(collection));
+        vm.assume(minter != address(collection));
+
         supply = bound(supply, 10, 10_000);
 
-        Collection collection = new Collection(owner, tokenURI, 0.0000001 ether);
         assertEq(collection.owner(), owner);
 
         vm.deal(owner, 1 ether);
