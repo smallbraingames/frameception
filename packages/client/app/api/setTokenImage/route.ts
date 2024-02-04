@@ -1,5 +1,5 @@
 import { getReadCollectionContract } from '@/mint/getCollectionContract';
-import getCreateReceiptId from '@/mint/getCreateReceiptId';
+import parseCreateReceipt from '@/mint/getCreateReceiptId';
 import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 import getTransactionReceipt from '@/mint/getTransactionReceipt';
 import publicClient from '@/mint/publicClient';
@@ -46,7 +46,9 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
-  const tokenId = getCreateReceiptId(transactionReceipt);
+  const { id: tokenId } = parseCreateReceipt(transactionReceipt) ?? {
+    id: undefined,
+  };
 
   if (!tokenId) {
     console.error(

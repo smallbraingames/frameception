@@ -1,7 +1,7 @@
 import collectionAbi from 'contracts/out/Collection.sol/Collection.abi.json';
-import { TransactionReceipt, decodeEventLog } from 'viem';
+import { Address, TransactionReceipt, decodeEventLog, getAddress } from 'viem';
 
-const getCreateReceiptId = (receipt: TransactionReceipt) => {
+const parseCreateReceipt = (receipt: TransactionReceipt) => {
   try {
     for (const encodedLog of receipt.logs) {
       try {
@@ -12,7 +12,8 @@ const getCreateReceiptId = (receipt: TransactionReceipt) => {
         });
         if (log.eventName === 'Created') {
           const id: bigint = (log.args as any).id;
-          return Number(id);
+          const creator: Address = getAddress((log.args as any).creator);
+          return { id: Number(id), creator };
         }
       } catch (e) {
         console.warn(
@@ -32,4 +33,4 @@ const getCreateReceiptId = (receipt: TransactionReceipt) => {
   return undefined;
 };
 
-export default getCreateReceiptId;
+export default parseCreateReceipt;
