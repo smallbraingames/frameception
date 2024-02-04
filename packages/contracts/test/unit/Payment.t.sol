@@ -6,7 +6,7 @@ import { Info } from "../../src/Info.sol";
 import { BaseTest } from "../Base.t.sol";
 
 contract PaymentTest is BaseTest {
-    function test_CreateCollection() external {
+    function test_AcceptsPayment() public {
         address owner = address(0xcafe);
         string memory tokenURI = "https://example.com/";
         Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
@@ -20,5 +20,19 @@ contract PaymentTest is BaseTest {
         collection.create{ value: 1 ether }(creator, supply);
 
         assertEq(address(owner).balance, prevBalance + 1 ether);
+    }
+
+    function test_RevertsWhen_NotEnoughPayment() public {
+        address owner = address(0xcafe);
+        string memory tokenURI = "https://example.com/";
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
+
+        address creator = address(0xdeaf);
+        vm.deal(creator, 1 ether);
+        uint256 supply = 10;
+
+        vm.prank(creator);
+        vm.expectRevert(Collection.NotEnoughValue.selector);
+        collection.create{ value: 0.0001 ether }(creator, supply);
     }
 }
