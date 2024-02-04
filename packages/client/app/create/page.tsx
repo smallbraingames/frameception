@@ -7,6 +7,8 @@ import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useState } from 'react';
 import { Address, createWalletClient, custom } from 'viem';
 import { useSearchParams } from 'next/navigation'
+import { kv } from '@vercel/kv';
+import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -20,9 +22,6 @@ const Create = () => {
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
   const [error, setError] = useState<string | null>(null);
-
-  console.log('url', url)
-
   const address = user?.wallet?.address as Address | undefined;
 
   const getWalletClient = async () => {
@@ -56,7 +55,8 @@ const Create = () => {
       return;
     }
     console.log('[Create] Transaction confirmed', receipt);
-    console.log('url and supply', url, supply);
+    console.log('[Create] Transaction confirmed', url, supply);
+
     try {
       const res = await fetch('/api/registerPaymentAndCreateToken', {
         method: 'POST',
@@ -85,7 +85,8 @@ const Create = () => {
           className='w-full rounded-sm bg-stone-800 p-2 text-stone-100'
           type='number'
           value={supply}
-          onChange={(e) => setSupply(parseInt(e.target.value))}
+          // supply must be positive and less than 1e6
+          onChange={(e) => setSupply(Math.min(Math.max(0, parseInt(e.target.value, 10)), 1e6))}
         />
       </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
