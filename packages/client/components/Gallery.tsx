@@ -1,21 +1,20 @@
 'use client';
 
-import { TokenInfo } from '@/indexing/getCollectionInfo';
 import { useContext } from 'react';
+import { Address } from 'viem';
 
 import { CollectionContext } from './CollectionProvider';
 import GalleryCard from './GalleryCard';
+import Name from './Name';
 
 const Gallery = () => {
-  const info: Map<number, TokenInfo> = useContext(CollectionContext);
+  const { collection: info } = useContext(CollectionContext);
 
-  // Parse info map to get top holders and top creators
   const parseInfoMap = () => {
     const topHolders: { address: string; tokenCount: number }[] = [];
     const topCreators: { address: string; createdTokens: number }[] = [];
 
-    info.forEach((tokenInfo, tokenId) => {
-      // Parse top holders
+    info.forEach((tokenInfo) => {
       tokenInfo.holders.forEach((tokenCount, address) => {
         const existingHolderIndex = topHolders.findIndex(
           (holder) => holder.address === address
@@ -27,7 +26,6 @@ const Gallery = () => {
         }
       });
 
-      // Parse top creators
       const existingCreatorIndex = topCreators.findIndex(
         (creator) => creator.address === tokenInfo.creator
       );
@@ -41,7 +39,6 @@ const Gallery = () => {
       }
     });
 
-    // Sort top holders and top creators based on token count
     topHolders.sort((a, b) => b.tokenCount - a.tokenCount);
     topCreators.sort((a, b) => b.createdTokens - a.createdTokens);
 
@@ -60,7 +57,8 @@ const Gallery = () => {
               key={index}
               className='mb-2 hover:text-gray-300 transition-colors duration-300'
             >
-              {holder.address} - {holder.tokenCount} tokens
+              <Name address={holder.address as Address} /> - {holder.tokenCount}{' '}
+              tokens
             </li>
           ))}
         </ul>

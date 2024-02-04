@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Address } from 'viem';
 
+import Name from './Name';
+
 const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
 const GalleryCard = ({
@@ -30,7 +32,14 @@ const GalleryCard = ({
     maxLength: number
   ) => {
     const truncatedList = Array.from(holders.keys()).slice(0, maxLength);
-    return truncatedList.join(', ') + (holders.size > maxLength ? ', ...' : '');
+    return (
+      <p>
+        {truncatedList.map((address) => (
+          <Name address={address} />
+        ))}{' '}
+        {holders.size > maxLength ? ', ...' : ''}
+      </p>
+    );
   };
 
   return (
@@ -49,7 +58,8 @@ const GalleryCard = ({
             Token #{id}
           </div>
           <div className='mb-2 text-xs text-gray-500'>
-            <span className='font-semibold'>Creator:</span> {tokenInfo.creator}
+            <span className='font-semibold'>Creator:</span>{' '}
+            <Name address={tokenInfo.creator} />
           </div>
           <div className='mb-4 text-xs text-gray-500'>
             <span className='font-semibold'>Holders:</span>{' '}

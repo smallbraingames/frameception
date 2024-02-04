@@ -1,3 +1,4 @@
+import getFarcasterFidKVKey from '@/frames/getFarcasterFidKVKey';
 import getGenerateFrame from '@/frames/getGenerateFrame';
 import getOwnerAddressFromFid from '@/frames/getOwnerAddressFromFid';
 import validateFrameRequest from '@/frames/validateFrameRequest';
@@ -7,14 +8,17 @@ import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 import mint from '@/mint/mint';
 import publicClient from '@/mint/publicClient';
 import { getFrameHtmlResponse } from '@coinbase/onchainkit';
-import { FrameButtonMetadata } from '@coinbase/onchainkit/dist/types/core/types';
+import {
+  FrameButtonMetadata,
+  FrameRequest,
+} from '@coinbase/onchainkit/dist/types/core/types';
 import { kv } from '@vercel/kv';
 import { NextResponse } from 'next/server';
 
 const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
 const getResponse = async (req: Request, tokenId: number) => {
-  const frameRequest = await req.json();
+  const frameRequest: FrameRequest | undefined = await req.json();
   if (!frameRequest) {
     console.error('[Mint Frame] Invalid request', frameRequest);
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
@@ -57,6 +61,11 @@ const getResponse = async (req: Request, tokenId: number) => {
         );
       }
       await mint(toAddress, tokenId);
+      try {
+        await kv.set(getFarcasterFidKVKey(toAddress), fid);
+      } catch (e) {
+        console.warn("[Mint Frame] Couldn't set farcaster fid");
+      }
       hasAlreadyMinted = true;
     }
   }
