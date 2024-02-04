@@ -133,12 +133,13 @@ const Create = () => {
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            You have the opportunity to create a frame within a frame. Your
-            frame will let others mint this image for free and after, they'll
-            have the option to create their own.
+            Today you have the opportunity to create a frame within a frame.
+            Your frame will let others mint this image for free and after,
+            they'll have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
-          <ConnectButton />
+
+          {!tokenId && <ConnectButton />}
         </div>
       )}
 
