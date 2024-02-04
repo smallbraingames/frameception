@@ -7,6 +7,10 @@ const Name = ({ address }: { address: Address }) => {
   const { farcaster } = useContext(CollectionContext);
   const farcasterName = farcaster.get(getAddress(address));
 
+  const formatAddress = (address: Address) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   if (farcasterName) {
     return (
       <span>
@@ -20,7 +24,7 @@ const Name = ({ address }: { address: Address }) => {
       </span>
     );
   }
-  return <span>{address}</span>;
+  return <span>{formatAddress(address)}</span>;
 };
 
 export default Name;

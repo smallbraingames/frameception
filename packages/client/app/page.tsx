@@ -33,17 +33,14 @@ export const metadata = {
 export default function Home() {
   return (
     <main className='flex p-2'>
-      <div className='flex flex-row w-full'>
+      <div className='flex flex-row w-full max-w-screen-2xl mx-auto'>
         <div className='w-full'>
-          <h1 className='text-3xl my-8'>Collection</h1>
-
+          <h1 className='text-3xl my-8 font-bold'>A Frame Within a Frame</h1>
           <CollectionProvider>
             <Gallery />
           </CollectionProvider>
         </div>
       </div>
-
-      <div></div>
     </main>
   );
 }
