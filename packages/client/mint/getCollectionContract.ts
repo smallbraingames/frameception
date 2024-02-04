@@ -1,11 +1,5 @@
 import collectionAbi from 'contracts/out/Collection.sol/Collection.abi.json';
-import {
-  Address,
-  GetContractReturnType,
-  PublicClient,
-  WalletClient,
-  getContract,
-} from 'viem';
+import { Address, PublicClient, WalletClient, getContract } from 'viem';
 
 const contractAddress = process.env.NEXT_PUBLIC_COLLECTION_CONTRACT_ADDRESS as
   | Address
