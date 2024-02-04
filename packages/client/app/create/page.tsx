@@ -125,16 +125,11 @@ const Create = () => {
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            You arrived here from a frame and now you have the opportunity to
-            create a frame within a frame. The frame you create will let others
-            mint the image you created.
+            You have the opportunity to
+            create a frame within a frame. Your frame will let others
+            mint this image for free and after, they'll have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
-
-          <p className='text-sm'>
-            Connect your wallet and create a frame link that'll let collectors
-            mint for free.
-          </p>
           <ConnectButton />
         </div>
       )}
@@ -189,29 +184,33 @@ const Create = () => {
       )}
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
-        <button
-          className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'
-          onClick={() => {
-            navigator.clipboard.writeText(
-              `${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`
-            );
-            toast.success('Copied to clipboard');
-          }}
-        >
-          Copy Your Frame Link
-        </button>
+        <div className='flex flex-col gap-2'>
+          <button
+            className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`
+              );
+              toast.success('Copied to clipboard');
+            }}
+          >
+            Copy Your Frame Link
+          </button>
+          <p className='text-xs'>
+          Copy and cast your frame link on{' '}
+          <Link
+            className='border-b-2 border-gray-400'
+            href='https://warpcast.com'
+            target='_blank'
+          >
+            Warpcast
+          </Link>
+          .
+        </p>
+        </div>
+
       )}
-      <p className='text-xs pt-2'>
-        Copy and cast your frame link on{' '}
-        <Link
-          className='border-b-2 border-gray-400'
-          href='https://warpcast.com'
-          target='_blank'
-        >
-          Warpcast
-        </Link>
-        .
-      </p>
+
     </div>
   );
 };
