@@ -1,12 +1,15 @@
+import { getReadCollectionContract } from '@/mint/getCollectionContract';
 import getCreateReceiptId from '@/mint/getCreateReceiptId';
 import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 import getTransactionReceipt from '@/mint/getTransactionReceipt';
+import publicClient from '@/mint/publicClient';
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
-import { Hex } from 'viem';
+import { Hex, getAddress } from 'viem';
 
 const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.json();
+
   const hash = body.hash as Hex | undefined;
   const url = body.url as string | undefined;
 
@@ -29,6 +32,20 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
+  const to = transactionReceipt.to;
+  if (
+    !to ||
+    getAddress(to) !==
+      getAddress(getReadCollectionContract(publicClient).address)
+  ) {
+    console.error(`[RegisterPaymentAndCreateToken] Invalid to address: ${to}`);
+
+    return NextResponse.json(
+      { message: 'Invalid to address' },
+      { status: 500 }
+    );
+  }
+
   const tokenId = getCreateReceiptId(transactionReceipt);
 
   if (!tokenId) {
@@ -41,9 +58,25 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     return NextResponse.json({ message: 'Invalid receipt' }, { status: 500 });
   }
 
+  const key = getTokenImageKVKey(tokenId);
+  const existingUrl = await kv.get(key);
+  if (existingUrl) {
+    console.error(
+      `[RegisterPaymentAndCreateToken] Token already has image: ${tokenId}`
+    );
+
+    return NextResponse.json(
+      { message: 'Token already has image' },
+      { status: 500 }
+    );
+  }
+
   await kv.set(getTokenImageKVKey(tokenId), url);
 
-  return NextResponse.json({ message: 'Created' }, { status: 200 });
+  return NextResponse.json(
+    { message: 'Created', id: tokenId },
+    { status: 200 }
+  );
 };
 
 export const POST = async (req: NextRequest): Promise<Response> => {

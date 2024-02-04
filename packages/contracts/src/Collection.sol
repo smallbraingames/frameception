@@ -25,7 +25,7 @@ contract Collection is ERC1155, Owned {
     string public baseURI;
     mapping(uint256 => Info) public infoOf;
     uint256 public lastId = 0;
-    uint256 pricePerSupply;
+    uint256 public pricePerSupply;
 
     constructor(address owner, string memory _baseURI, uint256 _pricePerSupply) Owned(owner) {
         baseURI = _baseURI;
