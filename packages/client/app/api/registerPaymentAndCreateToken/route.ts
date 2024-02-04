@@ -2,6 +2,7 @@ import chain from '@/mint/chain';
 import create from '@/mint/create';
 import { getReadCollectionContract } from '@/mint/getCollectionContract';
 import getCreateReceiptId from '@/mint/getCreateReceiptId';
+import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 import ownerWalletClient from '@/mint/ownerWalletClient';
 import publicClient from '@/mint/publicClient';
 import { kv } from '@vercel/kv';
@@ -16,6 +17,11 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.json();
   const hash = body.hash as Hex | undefined;
   const supply = body.supply as number | undefined;
+  const url = body.url as string | undefined;
+
+  if (!url) {
+    return NextResponse.json({ message: 'Invalid url' }, { status: 500 });
+  }
 
   if (!hash || hash.slice(0, 2) !== '0x') {
     return NextResponse.json({ message: 'Invalid hash' }, { status: 500 });
@@ -123,6 +129,19 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
         { status: 500 }
       );
     }
+  }
+
+  try {
+    await kv.set(getTokenImageKVKey(id), url);
+  } catch (e) {
+    console.error(
+      `[RegisterPaymentAndCreateToken] Error setting token image: (id) ${id}, (url) ${url}`,
+      e
+    );
+    return NextResponse.json(
+      { message: 'Created collection, but error setting token image' },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ message: 'Created', id }, { status: 200 });

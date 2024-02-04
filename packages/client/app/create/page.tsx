@@ -24,7 +24,7 @@ const Create = () => {
     }
     await wallets[0]?.switchChain(chain.id);
     const ethereumProvider = await wallets[0]?.getEthereumProvider();
-    const walletClient = await createWalletClient({
+    const walletClient = createWalletClient({
       account: address,
       chain: chain,
       transport: custom(ethereumProvider),
@@ -52,7 +52,8 @@ const Create = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ hash, supply: 10 }),
+        // TODO @david: fill in supply and url
+        body: JSON.stringify({ hash, supply: 10, url: 'https://example.com' }),
       });
       const json = await res.json();
       const tokenId = json.id as number;
