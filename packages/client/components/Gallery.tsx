@@ -10,6 +10,8 @@ import Name from './Name';
 const Gallery = () => {
   const { collection: info } = useContext(CollectionContext);
 
+  console.log('[Gallery]: info', info);
+
   const parseInfoMap = () => {
     const topHolders: { address: string; tokenCount: number }[] = [];
     const topCreators: { address: string; createdTokens: number }[] = [];
@@ -48,27 +50,30 @@ const Gallery = () => {
   const { topHolders, topCreators } = parseInfoMap();
 
   return (
-    <div className='flex w-full gap-8'>
-      <div className='w-fit bg-stone-900 rounded-sm text-stone-100 p-4'>
-        <h1 className='font-bold text-xl mb-4'>Top Holders</h1>
-        <ul>
+    <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 pb-10'>
+      <div
+        style={{ borderRadius: '20px' }}
+        className=' bg-gray-200 rounded-sm text-stone-800 p-4 w-72 overflow-y-scroll max-h-96 mx-auto'
+      >
+        <h1 className='font-bold mb-4'>Collected by</h1>
+        <div>
           {topHolders.map((holder, index) => (
-            <li
+            <div
               key={index}
-              className='mb-2 hover:text-gray-300 transition-colors duration-300'
+              className='mb-2 transition-colors duration-300 flex justify-between border-b border-gray-300 pb-2 text-sm'
             >
-              <Name address={holder.address as Address} /> - {holder.tokenCount}{' '}
-              tokens
-            </li>
+              <div className=''>{index + 1}</div>
+              <div>
+                <Name address={holder.address as Address} />{' '}
+              </div>
+              <div>{holder.tokenCount}</div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
-
-      <div className='flex-1 grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 rounded-lg'>
-        {[...info.entries()].map(([id, tokenInfo]) => (
-          <GalleryCard key={id} id={id} tokenInfo={tokenInfo} />
-        ))}
-      </div>
+      {[...info.entries()].map(([id, tokenInfo]) => (
+        <GalleryCard key={id} id={id} tokenInfo={tokenInfo} />
+      ))}
     </div>
   );
 };

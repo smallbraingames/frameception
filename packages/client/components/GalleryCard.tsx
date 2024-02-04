@@ -42,9 +42,19 @@ const GalleryCard = ({
     );
   };
 
+  const firstHolder = tokenInfo.holders.keys().next().value;
+  const holderCount = tokenInfo.holders.size;
+
   return (
-    <div className='w-full flex items-end justify-end'>
-      <div className='rounded-sm shadow-lg bg-white transition-transform transform hover:scale-105 w-72 overflow-hidden'>
+    <div className=''>
+      <div
+        style={{ borderRadius: '20px' }}
+        className='rounded-sm shadow-lg  transition-transform transform hover:scale-105 overflow-hidden relative max-w-72 bg-gray-200 max-h-96 mx-auto'
+      >
+        <div className='p-3 font-semibold flex justify-between text-sm'>
+          <h1>#{id}</h1>
+          <Name address={tokenInfo.creator} />
+        </div>
         <div className='relative h-72 w-72'>
           <Image
             src={imageUrl ?? logo}
@@ -53,18 +63,11 @@ const GalleryCard = ({
             className='object-cover w-full transition-opacity duration-300 ease-in-out rounded-sm'
           />
         </div>
-        <div className='p-4'>
-          <div className='mb-2 text-sm font-semibold text-gray-600'>
-            Token #{id}
-          </div>
-          <div className='mb-2 text-xs text-gray-500'>
-            <span className='font-semibold'>Creator:</span>{' '}
-            <Name address={tokenInfo.creator} />
-          </div>
-          <div className='mb-4 text-xs text-gray-500'>
-            <span className='font-semibold'>Holders:</span>{' '}
-            {truncateHolderList(tokenInfo.holders, 3)}
-          </div>
+        <div className='p-3'>
+          <p className='text-xs text-gray-600'>
+            Collected by <Name address={firstHolder} /> and {holderCount - 1}{' '}
+            {holderCount - 1 === 1 ? 'other' : 'others'}
+          </p>
         </div>
       </div>
     </div>

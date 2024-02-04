@@ -133,9 +133,9 @@ const Create = () => {
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            Today is the day you have the opportunity to create a frame within a frame.
-            Your frame will let others mint this image and after,
-            they'll have the option to create their own.
+            Today is the day you have the opportunity to create a frame within a
+            frame. Your frame will let others mint this image and after, they'll
+            have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
 
@@ -186,8 +186,8 @@ const Create = () => {
           </button>
 
           <p className='py-2 text-xs'>
-            The first {supply} collectors will mint for free. We'll use
-            some of the {cost} to pay for gas.
+            The first {supply} collectors will mint for free. We'll use some of
+            the {cost} to pay for gas.
           </p>
         </div>
       )}
