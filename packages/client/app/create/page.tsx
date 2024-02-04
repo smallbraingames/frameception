@@ -41,6 +41,8 @@ const Create = () => {
   };
 
   const create = async (): Promise<number | undefined> => {
+    // remove error message after each attempt
+    setError(null);
     const walletClient = await getWalletClient();
     if (!walletClient) return;
     const hash = await walletClient.sendTransaction({
