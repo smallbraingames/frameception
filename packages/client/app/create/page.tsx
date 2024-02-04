@@ -4,7 +4,9 @@ import ConnectButton from '@/components/ConnectButton';
 import chain from '@/mint/chain';
 import getTransactionReceipt from '@/mint/getTransactionReceipt';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useState } from 'react';
 import { Address, createWalletClient, custom } from 'viem';
+import { useSearchParams } from 'next/navigation'
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -14,6 +16,12 @@ if (!ownerPublicKey) {
 const Create = () => {
   const { user } = usePrivy();
   const { wallets } = useWallets();
+  const [supply, setSupply] = useState(0);
+  const searchParams = useSearchParams()
+  const url = searchParams.get('url')
+  const [error, setError] = useState<string | null>(null);
+
+  console.log('url', url)
 
   const address = user?.wallet?.address as Address | undefined;
 
@@ -46,14 +54,14 @@ const Create = () => {
       return;
     }
     console.log('[Create] Transaction confirmed', receipt);
+    console.log('url and supply', url, supply);
     try {
       const res = await fetch('/api/registerPaymentAndCreateToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // TODO @david: fill in supply and url
-        body: JSON.stringify({ hash, supply: 10, url: 'https://example.com' }),
+        body: JSON.stringify({ hash, supply, url }),
       });
       const json = await res.json();
       const tokenId = json.id as number;
@@ -62,18 +70,32 @@ const Create = () => {
     } catch (e) {
       console.error('[Create] Failed to register payment and create token', e);
       // TODO @david: Important to surface an error to the user here, since they have paid...
+      setError('Failed to register payment and create token');
     }
   };
 
   return (
-    <div>
+    <div className='max-w-md mx-auto'>
       <ConnectButton />
-
+      <div className='py-2'>
+        <label className='block text-stone-100 font-bold'>Supply</label>
+        <input
+          className='w-full rounded-sm bg-stone-800 p-2 text-stone-100'
+          type='number'
+          value={supply}
+          onChange={(e) => setSupply(parseInt(e.target.value))}
+        />
+      </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
         <button onClick={create} type='button' className='h-full w-full'>
           Create Token
         </button>
       </div>
+      {
+        error && (
+          <div className='text-red-500'>{error}</div>
+        )
+      }
     </div>
   );
 };
