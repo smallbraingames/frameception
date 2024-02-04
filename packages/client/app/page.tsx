@@ -32,15 +32,15 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className='flex bg-green-200 p-2'>
-      <div className='py-8 flex flex-row'>
-        <div>
-          <h1 className='text-2xl font-bold'>Collection</h1>
-        </div>
+    <main className='flex p-2'>
+      <div className='flex flex-row w-full'>
+        <div className='w-full'>
+          <h1 className='text-3xl my-8'>Collection</h1>
 
-        <CollectionProvider>
-          <Gallery />
-        </CollectionProvider>
+          <CollectionProvider>
+            <Gallery />
+          </CollectionProvider>
+        </div>
       </div>
 
       <div></div>
