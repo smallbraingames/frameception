@@ -133,8 +133,8 @@ const Create = () => {
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            Today you have the opportunity to create a frame within a frame.
-            Your frame will let others mint this image for free and after,
+            Today is the day you have the opportunity to create a frame within a frame.
+            Your frame will let others mint this image and after,
             they'll have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
@@ -158,19 +158,19 @@ const Create = () => {
             <div className='flex gap-2'>
               <button
                 onClick={() => setSupply(100)}
-                className={`${supply === 100 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
+                className={`${supply === 100 ? 'bg-stone-900' : 'bg-stone-500'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 100
               </button>
               <button
                 onClick={() => setSupply(500)}
-                className={`${supply === 500 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
+                className={`${supply === 500 ? 'bg-stone-900' : 'bg-stone-500'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 500
               </button>
               <button
                 onClick={() => setSupply(1000)}
-                className={`${supply === 1000 ? 'bg-stone-900' : 'bg-stone-600'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
+                className={`${supply === 1000 ? 'bg-stone-900' : 'bg-stone-500'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900 w-full`}
               >
                 1,000
               </button>
@@ -186,7 +186,7 @@ const Create = () => {
           </button>
 
           <p className='py-2 text-xs'>
-            The first {supply} collectors will mint the NFT for free. We'll use
+            The first {supply} collectors will mint for free. We'll use
             some of the {cost} to pay for gas.
           </p>
         </div>
