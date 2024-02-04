@@ -2,7 +2,7 @@
 
 import ConnectButton from '@/components/ConnectButton';
 import chain from '@/mint/chain';
-import getTransactionReceipt from '@/mint/getTransactionReceipt';
+import create from '@/mint/create';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -39,31 +39,28 @@ const Create = () => {
     return walletClient;
   };
 
-  const create = async (): Promise<number | undefined> => {
-    // remove error message after each attempt
+  const createToken = async (): Promise<number | undefined> => {
     setError(null);
     const walletClient = await getWalletClient();
-    if (!walletClient) return;
-    const hash = await walletClient.sendTransaction({
-      to: ownerPublicKey as Address,
-      value: BigInt(100000),
-    });
-    console.log('[Create] Transaction sent', hash);
-    const receipt = await getTransactionReceipt(hash);
+    if (!walletClient) {
+      console.error('[Create] No wallet client found');
+      return;
+    }
+    const receipt = await create(walletClient, supply);
+    console.log('[Create] Transaction sent', receipt);
+
     if (receipt.status === 'reverted') {
       console.error('[Create] Transaction reverted', receipt);
       return;
     }
-    console.log('[Create] Transaction confirmed', receipt);
-    console.log('[Create] Transaction confirmed', url, supply);
 
     try {
-      const res = await fetch('/api/registerPaymentAndCreateToken', {
+      const res = await fetch('/api/setTokenImage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ hash, supply, url }),
+        body: JSON.stringify({ hash: receipt.transactionHash, url }),
       });
       const json = await res.json();
       const tokenId = json.id as number;
@@ -72,7 +69,6 @@ const Create = () => {
       return tokenId;
     } catch (e) {
       console.error('[Create] Failed to register payment and create token', e);
-      // TODO @david: Important to surface an error to the user here, since they have paid...
       setError('Failed to register payment and create token');
     }
   };
@@ -109,7 +105,7 @@ const Create = () => {
         </div>
       </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
-        <button onClick={create} type='button' className='h-full w-full'>
+        <button onClick={createToken} type='button' className='h-full w-full'>
           Create Token ({supply * 0.0001} ETH)
         </button>
       </div>
@@ -117,9 +113,9 @@ const Create = () => {
       {tokenId && (
         <div>
           <p>
-            Your new frame link: {`${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`}{' '}
+            Your new frame link:{' '}
+            {`${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`}{' '}
           </p>
-          {/* copy button */}
           <button
             onClick={() => {
               navigator.clipboard.writeText(
