@@ -2,11 +2,9 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Address } from 'viem';
 
 const ConnectButton = () => {
-  const { ready, authenticated, user, login } = usePrivy();
+  const { ready, authenticated, user, login, logout } = usePrivy();
 
   const connected = ready && authenticated && user;
-
-  const address = user?.wallet?.address as Address;
 
   return (
     <div
@@ -25,7 +23,11 @@ const ConnectButton = () => {
           Connect Wallet
         </button>
       ) : (
-        <div>{address}</div>
+        <div className='flex flex-col gap-2'>
+          <button className='w-full' onClick={logout}>
+            Change wallet
+          </button>
+        </div>
       )}
     </div>
   );

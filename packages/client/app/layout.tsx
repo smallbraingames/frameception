@@ -22,10 +22,15 @@ const RootLayout = ({
     <html lang='en'>
       <body className='bg-stone-100 font-mono text-stone-900'>
         <div className='bg-stone-900 text-stone-100 w-full p-2 flex gap-2 flex-row items-center'>
-          <a href="/">
-          <div className='h-8 w-8 relative'>
-            <Image src={logo} alt='Logo' layout='fill' className='rounded-sm' />
-          </div>
+          <a href='/'>
+            <div className='h-8 w-8 relative'>
+              <Image
+                src={logo}
+                alt='Logo'
+                layout='fill'
+                className='rounded-sm'
+              />
+            </div>
           </a>
           <div>
             <h1 className='text-xl tracking-tight'>Frameception</h1>
