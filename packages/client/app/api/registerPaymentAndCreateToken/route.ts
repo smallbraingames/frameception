@@ -1,10 +1,12 @@
 import chain from '@/mint/chain';
 import create from '@/mint/create';
+import { getReadCollectionContract } from '@/mint/getCollectionContract';
+import getCreateReceiptId from '@/mint/getCreateReceiptId';
 import ownerWalletClient from '@/mint/ownerWalletClient';
 import publicClient from '@/mint/publicClient';
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
-import { Hex, getAddress } from 'viem';
+import { Hex, TransactionReceipt, getAddress } from 'viem';
 
 const MAX_SUPPLY = 1e6;
 
@@ -69,8 +71,9 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
 
   await kv.set(key, true);
 
+  let receipt: TransactionReceipt;
   try {
-    await create(sender, supply);
+    receipt = await create(sender, supply);
   } catch (e) {
     console.error(
       '[RegisterPaymentAndCreateToken] Error creating token, refunding user',
@@ -101,7 +104,28 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     `[RegisterPaymentAndCreateToken] Created token: (sender) ${sender}, (to) ${to}, (value) ${value}, (hash) ${hash}, (chainId) ${chainId}`
   );
 
-  return NextResponse.json({ message: 'Created' }, { status: 200 });
+  let id = getCreateReceiptId(receipt);
+  if (!id) {
+    console.error(
+      `[RegisterPaymentAndCreateToken] Error getting token id: (sender) ${sender}, (to) ${to}, (value) ${value}, (hash) ${hash}, (chainId) ${chainId}, getting most recent id from contract`
+    );
+
+    try {
+      const contract = getReadCollectionContract(publicClient);
+      id = Number(await contract.read.lastId());
+    } catch (e) {
+      console.error(
+        `[RegisterPaymentAndCreateToken] Error getting most recent id: (sender) ${sender}, (to) ${to}, (value) ${value}, (hash) ${hash}, (chainId) ${chainId}`,
+        e
+      );
+      return NextResponse.json(
+        { message: 'Created collection, but error getting token id' },
+        { status: 500 }
+      );
+    }
+  }
+
+  return NextResponse.json({ message: 'Created', id }, { status: 200 });
 };
 
 export const POST = async (req: NextRequest): Promise<Response> => {

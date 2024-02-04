@@ -32,21 +32,36 @@ const Create = () => {
     return walletClient;
   };
 
-  const create = async () => {
+  const create = async (): Promise<number | undefined> => {
     const walletClient = await getWalletClient();
     if (!walletClient) return;
     const hash = await walletClient.sendTransaction({
       to: ownerPublicKey as Address,
       value: BigInt(100000),
     });
+    console.log('[Create] Transaction sent', hash);
     const receipt = await getTransactionReceipt(hash);
-    const res = await fetch('/api/registerPaymentAndCreateToken', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ hash, supply: 10 }),
-    });
+    if (receipt.status === 'reverted') {
+      console.error('[Create] Transaction reverted', receipt);
+      return;
+    }
+    console.log('[Create] Transaction confirmed', receipt);
+    try {
+      const res = await fetch('/api/registerPaymentAndCreateToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash, supply: 10 }),
+      });
+      const json = await res.json();
+      const tokenId = json.id as number;
+      console.log('[Create] Token created with tokenId', tokenId);
+      return tokenId;
+    } catch (e) {
+      console.error('[Create] Failed to register payment and create token', e);
+      // TODO @david: Important to surface an error to the user here, since they have paid...
+    }
   };
 
   return (

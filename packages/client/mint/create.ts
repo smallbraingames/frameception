@@ -16,6 +16,7 @@ const create = async (creator: Address, supply: number) => {
     );
   }
   console.log(`[Create] Created: ${creator}, ${supply}`);
+  return receipt;
 };
 
 export default create;
