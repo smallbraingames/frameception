@@ -6,6 +6,7 @@ import create from '@/mint/create';
 import { getReadCollectionContract } from '@/mint/getCollectionContract';
 import publicClient from '@/mint/publicClient';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -27,6 +28,7 @@ const Create = () => {
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [pricePerSupply, setPricePerSupply] = useState<bigint | null>(null);
   const address = user?.wallet?.address as Address | undefined;
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     getReadCollectionContract(publicClient)
@@ -51,9 +53,11 @@ const Create = () => {
 
   const createToken = async (): Promise<number | undefined> => {
     setError(null);
+    setIsCreating(true);
     const walletClient = await getWalletClient();
     if (!walletClient) {
       console.error('[Create] No wallet client found');
+      setIsCreating(false);
       return;
     }
 
@@ -71,6 +75,7 @@ const Create = () => {
     if (!canSetTokenId) {
       console.error('[Create] Invalid token ID or URL');
       setError('Invalid token ID or URL');
+      setIsCreating(false);
       return;
     }
 
@@ -79,6 +84,7 @@ const Create = () => {
     console.log('[Create] Transaction sent', receipt);
     if (receipt.status === 'reverted') {
       console.error('[Create] Transaction reverted', receipt);
+      setIsCreating(false);
       return;
     }
 
@@ -102,6 +108,7 @@ const Create = () => {
     } catch (e) {
       console.error('[Create] Failed to register payment and create token', e);
       setError('Failed to register payment and create token');
+      setIsCreating(false);
     }
   };
 
@@ -116,18 +123,19 @@ const Create = () => {
       {user ? (
         <div className='flex flex-col gap-2 text-xs'>
           <p>
-            You're connected as {formatAddress(address)}.{' '}
+            You're connected as {formatAddress(address)} (
             <button onClick={logout} className='border-b-2 border-gray-400'>
-              Change wallet
+              change wallet
             </button>
+            ).{' '}
           </p>
         </div>
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            You have the opportunity to
-            create a frame within a frame. Your frame will let others
-            mint this image for free and after, they'll have the option to create their own.
+            You have the opportunity to create a frame within a frame. Your
+            frame will let others mint this image for free and after, they'll
+            have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
           <ConnectButton />
@@ -144,7 +152,7 @@ const Create = () => {
         <div>
           <div className=''>
             <p className='text-sm pb-2'>
-              How many NFTs would you like to distribute?
+              How many NFTs would you like to distribute using your frame link?
             </p>
             <div className='flex gap-2'>
               <button
@@ -167,15 +175,15 @@ const Create = () => {
               </button>
             </div>
           </div>
-          <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900 mt-2'>
-            <button
-              onClick={createToken}
-              type='button'
-              className='h-full w-full'
-            >
-              Get Frame Link ({cost})
-            </button>
-          </div>
+
+          <button
+            onClick={createToken}
+            type='button'
+            className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900 mt-2'
+          >
+            {isCreating ? 'Creating Link ...' : `Get Frame Link (${cost})`}
+          </button>
+
           <p className='py-2 text-xs'>
             The first {supply} collectors will mint the NFT for free. We'll use
             some of the {cost} to pay for gas.
@@ -185,6 +193,11 @@ const Create = () => {
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
         <div className='flex flex-col gap-2'>
+          <div className='flex gap-2'>
+            <p className='text-sm'>Your link purchase was successfull! </p>
+            <Image alt='hearts gif' height='20' width='20' src='/hearts.gif' />
+          </div>
+
           <button
             className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'
             onClick={() => {
@@ -197,20 +210,18 @@ const Create = () => {
             Copy Your Frame Link
           </button>
           <p className='text-xs'>
-          Copy and cast your frame link on{' '}
-          <Link
-            className='border-b-2 border-gray-400'
-            href='https://warpcast.com'
-            target='_blank'
-          >
-            Warpcast
-          </Link>
-          .
-        </p>
+            Copy and cast your frame link on{' '}
+            <Link
+              className='border-b-2 border-gray-400'
+              href='https://warpcast.com'
+              target='_blank'
+            >
+              Warpcast
+            </Link>
+            .
+          </p>
         </div>
-
       )}
-
     </div>
   );
 };
