@@ -1,13 +1,15 @@
+import getGenerateFrame from '@/frames/getGenerateFrame';
 import getOwnerAddressFromFid from '@/frames/getOwnerAddressFromFid';
 import validateFrameRequest from '@/frames/validateFrameRequest';
-import { getWriteCollectionContract } from '@/mint/getCollectionContract';
+import createOrFindEmbeddedWalletForFid from '@/mint/createOrFindEmbeddedWalletForFid';
+import { getReadCollectionContract } from '@/mint/getCollectionContract';
 import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 import mint from '@/mint/mint';
-import ownerWalletClient from '@/mint/ownerWalletClient';
 import publicClient from '@/mint/publicClient';
 import { getFrameHtmlResponse } from '@coinbase/onchainkit';
 import { FrameButtonMetadata } from '@coinbase/onchainkit/dist/types/core/types';
 import { kv } from '@vercel/kv';
+import { NextResponse } from 'next/server';
 
 const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL as string;
 
@@ -15,64 +17,72 @@ const getResponse = async (req: Request, tokenId: number) => {
   const frameRequest = await req.json();
   if (!frameRequest) {
     console.error('[Mint Frame] Invalid request', frameRequest);
-    return new Response('Invalid request', { status: 400 });
+    return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
   }
 
   const { fid, isValid } = await validateFrameRequest(frameRequest);
   if (!fid || !isValid) {
     console.error('[Mint Frame] Invalid frame request', frameRequest);
-    return new Response('Invalid frame request', { status: 400 });
+    return NextResponse.json(
+      { message: 'Invalid frame request' },
+      { status: 400 }
+    );
   }
 
-  const [imageUrl, owner] = await Promise.all([
-    kv.get<string>(getTokenImageKVKey(tokenId)),
+  const [owner, imageUrl] = await Promise.all([
     getOwnerAddressFromFid(fid),
+    kv.get<string>(getTokenImageKVKey(tokenId)),
   ]);
-  const contract = getWriteCollectionContract(publicClient, ownerWalletClient);
-  const hasAlreadyMinted =
+  const contract = getReadCollectionContract(publicClient);
+  let hasAlreadyMinted =
     Number(await contract.read.balanceOf([owner, tokenId])) > 0;
 
   const buttonIndex = frameRequest.untrustedData.buttonIndex;
 
   if (!owner) {
     console.error('[Mint Frame] Invalid owner');
-    return new Response('Invalid owner', { status: 400 });
+    return NextResponse.json({ message: 'Invalid owner' }, { status: 400 });
   }
 
   if (buttonIndex === 1) {
-    return Response.redirect(`${NEXT_PUBLIC_URL}/api/generatre`, 302);
+    return new NextResponse(getGenerateFrame(imageUrl ?? ''));
   } else if (buttonIndex === 2) {
     if (!hasAlreadyMinted) {
-      await mint(owner, tokenId);
+      const toAddress = await createOrFindEmbeddedWalletForFid(fid, owner);
+      if (!toAddress) {
+        console.error('[Mint Frame] Unable to create or find embedded wallet');
+        return NextResponse.json(
+          { message: 'Unable to create or find embedded wallet' },
+          { status: 500 }
+        );
+      }
+      await mint(toAddress, tokenId);
+      hasAlreadyMinted = true;
     }
   }
 
   const buttons: [FrameButtonMetadata, ...FrameButtonMetadata[]] = [
     {
       label: hasAlreadyMinted
-        ? 'Already minted! Create your own'
-        : 'Create your Own',
-      action: 'post_redirect',
+        ? 'Minted, now create your own'
+        : 'Create your own',
     },
   ];
   if (!hasAlreadyMinted) buttons.push({ label: 'Mint' });
 
-  return new Response(
+  return new NextResponse(
     getFrameHtmlResponse({
       buttons,
-      input: {
-        text: 'Write a new prompt, or leave blank to refresh the previous prompt',
-      },
       image: imageUrl ?? '',
-      post_url: `${NEXT_PUBLIC_URL}/api/generate`,
+      post_url: `${NEXT_PUBLIC_URL}/api/frame/${tokenId}`,
     })
   );
 };
 
-export const POST = (
-  request: Request,
+export const POST = async (
+  req: Request,
   { params }: { params: { tokenId: string } }
 ) => {
   const tokenId = Number(params.tokenId);
-  return getResponse(request, tokenId);
+  return getResponse(req, tokenId);
 };

@@ -1,3 +1,4 @@
+import getGenerateFrame from '@/frames/getGenerateFrame';
 import validateFrameRequest from '@/frames/validateFrameRequest';
 import getImageUrl from '@/generate/getImageUrl';
 import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit';
@@ -17,7 +18,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
 
   if (!isValid || !fid || buttonIndex === undefined) {
     return NextResponse.json({
-      status: 500,
+      status: 400,
       message: 'Invalid request',
     });
   }
@@ -42,7 +43,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     const prevPrompt = await kv.get<string>(prevPromptKey);
     if (!prevPrompt) {
       return NextResponse.json({
-        status: 500,
+        status: 400,
         message: 'No previous prompt',
       });
     }
@@ -52,24 +53,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     });
   }
 
-  return new NextResponse(
-    getFrameHtmlResponse({
-      buttons: [
-        {
-          label: 'Refresh',
-        },
-        {
-          label: `Create NFT: ${buttonIndex}`,
-          action: 'post_redirect',
-        },
-      ],
-      input: {
-        text: 'Write a new prompt, or leave blank to refresh the previous prompt',
-      },
-      image: url ?? '',
-      post_url: `${NEXT_PUBLIC_URL}/api/generate`,
-    })
-  );
+  return new NextResponse(getGenerateFrame(url ?? ''));
 };
 
 export const POST = async (req: NextRequest): Promise<Response> => {
