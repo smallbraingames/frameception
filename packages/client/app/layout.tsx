@@ -1,5 +1,6 @@
 import Privy from '@/components/Privy';
 import type { Metadata } from 'next';
+import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 
@@ -16,7 +17,7 @@ const RootLayout = ({
   return (
     <html lang='en'>
       <body>
-        {' '}
+        <Toaster />
         <Privy>{children}</Privy>
       </body>
     </html>
