@@ -64,7 +64,7 @@ const Create = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id: nextTokenId }),
+      body: JSON.stringify({ id: nextTokenId, url }),
     });
     const canSetTokenId = (await checkRes.json()).value as boolean;
     if (!canSetTokenId) {

@@ -12,14 +12,15 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.4.3",
+    "@farcaster/hub-nodejs": "^0.10.23",
     "@privy-io/react-auth": "^1.55.1",
     "@vercel/kv": "^1.0.1",
     "contracts": "*",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "replicate": "^0.25.2",
     "react-hot-toast": "^2.4.1",
+    "replicate": "^0.25.2",
     "viem": "^2.7.2"
   },
   "devDependencies": {
