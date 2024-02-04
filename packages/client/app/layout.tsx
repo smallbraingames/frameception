@@ -20,7 +20,7 @@ const RootLayout = ({
 }>) => {
   return (
     <html lang='en'>
-      <body className='bg-stone-100 font-mono text-stone-900'>
+      <body className='bg-stone-100 font-sans text-stone-900'>
         <div className='bg-stone-900 text-stone-100 w-full p-2 flex gap-2 flex-row items-center'>
           <a href='/'>
             <div className='h-8 w-8 relative'>
@@ -35,7 +35,7 @@ const RootLayout = ({
           <div>
             <h1 className='text-xl tracking-tight'>Frameception</h1>
           </div>
-          <div className='p-1 text-xs bg-blue-600 text-stone-100 rounded-sm'>
+          <div className='p-1 text-xs bg-blue-100 text-blue-500 rounded-sm'>
             Beta
           </div>
 
