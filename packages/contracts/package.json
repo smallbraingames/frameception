@@ -2,6 +2,7 @@
   "name": "contracts",
   "scripts": {
     "deploy:localhost": "forge create --rpc-url http://localhost:8545 --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 http://localhost:3000/ 0.0001ether --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Collection.sol:Collection",
+    "deploy:base": "forge create --rpc-url https://mainnet.base.org --constructor-args <owner_wallet> http://frameception.art/api/token/ 0.0001ether --private-key <owner_pkey> src/Collection.sol:Collection",
     "build": "forge build",
     "test": "forge test",
     "lint": "forge fmt && pnpm run solhint",
