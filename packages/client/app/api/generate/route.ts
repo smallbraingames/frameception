@@ -1,3 +1,4 @@
+import validateFrameRequest from '@/frames/validateFrameRequest';
 import getImageUrl from '@/generate/getImageUrl';
 import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit';
 import { kv } from '@vercel/kv';
@@ -9,46 +10,46 @@ const getPreviousPromptKey = (fid: number) => `previous-prompt-${fid}`;
 
 const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   let text: string | undefined = '';
-  let buttonIndex: number | undefined = undefined;
 
   const body: FrameRequest = await req.json();
+  const { isValid, fid } = await validateFrameRequest(body);
+  const buttonIndex = body.untrustedData.buttonIndex;
 
-  buttonIndex = body.untrustedData.buttonIndex;
+  if (!isValid || !fid || buttonIndex === undefined) {
+    return NextResponse.json({
+      status: 500,
+      message: 'Invalid request',
+    });
+  }
 
   let url: string | undefined;
 
-  if (body?.untrustedData?.buttonIndex) {
-    buttonIndex = body.untrustedData.buttonIndex;
-
-    if (buttonIndex === 1) {
-      text = body.untrustedData.inputText;
-      console.log('[Generate] Text: ', text);
-      const prevPromptKey = getPreviousPromptKey(body.untrustedData.fid);
-      if (text === '') {
-        const prevPrompt = await kv.get<string>(prevPromptKey);
-        url = await getImageUrl(prevPrompt ?? '');
-      } else {
-        [, url] = await Promise.all([
-          kv.set(prevPromptKey, text),
-          getImageUrl(text),
-        ]);
-      }
-    }
-
-    if (buttonIndex === 2) {
-      const prevPromptKey = getPreviousPromptKey(body.untrustedData.fid);
+  if (buttonIndex === 1) {
+    text = body.untrustedData.inputText;
+    console.log('[Generate] Text: ', text);
+    const prevPromptKey = getPreviousPromptKey(body.untrustedData.fid);
+    if (text === '') {
       const prevPrompt = await kv.get<string>(prevPromptKey);
-      if (!prevPrompt) {
-        return NextResponse.json({
-          status: 500,
-          message: 'No previous prompt',
-        });
-      }
-      const url = await getImageUrl(prevPrompt);
-      return NextResponse.redirect(`${NEXT_PUBLIC_URL}/create?url=${url}`, {
-        status: 302,
+      url = await getImageUrl(prevPrompt ?? '');
+    } else {
+      [, url] = await Promise.all([
+        kv.set(prevPromptKey, text),
+        getImageUrl(text),
+      ]);
+    }
+  } else if (buttonIndex === 2) {
+    const prevPromptKey = getPreviousPromptKey(body.untrustedData.fid);
+    const prevPrompt = await kv.get<string>(prevPromptKey);
+    if (!prevPrompt) {
+      return NextResponse.json({
+        status: 500,
+        message: 'No previous prompt',
       });
     }
+    const url = await getImageUrl(prevPrompt);
+    return NextResponse.redirect(`${NEXT_PUBLIC_URL}/create?url=${url}`, {
+      status: 302,
+    });
   }
 
   return new NextResponse(

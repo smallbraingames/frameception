@@ -7,6 +7,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.json();
   const id = body.id as number | undefined;
   const url = body.url as string | undefined;
+
   if (!id) {
     return NextResponse.json({ value: false });
   }

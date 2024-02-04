@@ -1,5 +1,5 @@
 export const getGenerationIdKey = (prompt: string) =>
-  `generation-${prompt.replace(' ', '_')}`;
+  `generation-${prompt.replaceAll(' ', '_')}`;
 
 export const getGenerationResultKey = (prompt: string) =>
-  `generationresult-${prompt.replace(' ', '_')}`;
+  `generationresult-${prompt.replaceAll(' ', '_')}`;
