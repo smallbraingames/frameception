@@ -7,8 +7,6 @@ import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useState } from 'react';
 import { Address, createWalletClient, custom } from 'viem';
 import { useSearchParams } from 'next/navigation'
-import { kv } from '@vercel/kv';
-import getTokenImageKVKey from '@/mint/getTokenImageKVKey';
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -18,7 +16,7 @@ if (!ownerPublicKey) {
 const Create = () => {
   const { user } = usePrivy();
   const { wallets } = useWallets();
-  const [supply, setSupply] = useState(0);
+  const [supply, setSupply] = useState(1000);
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
   const [error, setError] = useState<string | null>(null);
@@ -79,15 +77,20 @@ const Create = () => {
   return (
     <div className='max-w-md mx-auto'>
       <ConnectButton />
+      {
+        url && (
+          <div className='py-2'>
+            <img src={url} className='w-full' />
+          </div>
+        )
+      }
       <div className='py-2'>
         <label className='block text-stone-100 font-bold'>Supply</label>
-        <input
-          className='w-full rounded-sm bg-stone-800 p-2 text-stone-100'
-          type='number'
-          value={supply}
-          // supply must be positive and less than 1e6
-          onChange={(e) => setSupply(Math.min(Math.max(0, parseInt(e.target.value, 10)), 1e6))}
-        />
+      <div className='flex'>
+        <button onClick={() => setSupply(100)} className={`  ${supply === 100 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>100</button>
+        <button onClick={() => setSupply(1000)} className={`  ${supply === 1000 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>1,000</button>
+        <button onClick={() => setSupply(10000)} className={`  ${supply === 10000 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>10,000</button>
+      </div>
       </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
         <button onClick={create} type='button' className='h-full w-full'>
@@ -99,6 +102,7 @@ const Create = () => {
           <div className='text-red-500'>{error}</div>
         )
       }
+
     </div>
   );
 };
