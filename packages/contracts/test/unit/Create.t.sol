@@ -28,6 +28,29 @@ contract CreateTest is BaseTest {
         assertEq(cCreator, creator);
     }
 
+    function test_URI() public {
+        address owner = address(0xface);
+        vm.deal(owner, 1 ether);
+        string memory tokenURI = "https://example.com/";
+
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
+        assertEq(collection.owner(), owner);
+        assertEq(collection.baseURI(), tokenURI);
+
+        address creator = address(0xdead);
+        uint256 supply = 20;
+
+        vm.prank(owner);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
+
+        assertEq(collection.uri(id), "https://example.com/1");
+        assertEq(collection.uri(1), "https://example.com/1");
+        assertEq(collection.uri(2), "https://example.com/2");
+        assertEq(collection.uri(3), "https://example.com/3");
+        assertEq(collection.uri(4), "https://example.com/4");
+        assertEq(collection.uri(1_001_010), "https://example.com/1001010");
+    }
+
     function testFuzz_CreateToken(address owner, string memory tokenURI, address creator, uint256 supply) external {
         assumeValidPayableAddress(owner);
         assumeValidPayableAddress(creator);
