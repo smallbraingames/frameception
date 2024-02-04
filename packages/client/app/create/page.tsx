@@ -94,7 +94,7 @@ const Create = () => {
       </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
         <button onClick={create} type='button' className='h-full w-full'>
-          Create Token
+          Create Token ({supply * 0.0001} ETH)
         </button>
       </div>
       {
