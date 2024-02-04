@@ -5,14 +5,15 @@ import { Collection } from "../../src/Collection.sol";
 import { Info } from "../../src/Info.sol";
 import { BaseTest } from "../Base.t.sol";
 
-contract DeployTest is BaseTest {
+contract MintTest is BaseTest {
     function test_Mint() public {
         address owner = address(0xcafe);
         string memory tokenURI = "https://example.com/";
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
 
+        vm.deal(owner, 1 ether);
         vm.prank(owner);
-        uint256 id = collection.create(owner, 10);
+        uint256 id = collection.create{ value: 1 ether }(owner, 10);
 
         vm.prank(owner);
         collection.mint(owner, id);
@@ -26,17 +27,23 @@ contract DeployTest is BaseTest {
 
     function test_RevertsWhen_MintsPastSupply() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
         address creator = address(0xdead);
-        uint256 supply = 1;
+        uint256 supply = 20;
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
+
+        for (uint256 i = 0; i < supply - 1; i++) {
+            vm.prank(owner);
+            collection.mint(creator, id);
+        }
 
         vm.prank(owner);
         vm.expectRevert(Collection.MintedOut.selector);
@@ -53,13 +60,14 @@ contract DeployTest is BaseTest {
     {
         assumeValidPayableAddress(owner);
         assumeValidPayableAddress(creator);
-        supply = bound(supply, 1, 400);
-        Collection collection = new Collection(owner, tokenURI);
+        supply = bound(supply, 20, 400);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
+        vm.deal(owner, 1 ether);
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         for (uint256 i = 0; i < supply - 1; i++) {
             vm.prank(owner);

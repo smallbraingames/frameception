@@ -17,15 +17,19 @@ contract Collection is ERC1155, Owned {
     error ZeroAddressCreator();
     error ZeroSupply();
     error MintedOut();
+    error NotEnoughValue();
+    error SupplyLessThanTen();
 
     // ======= STATE ========
 
     string public baseURI;
     mapping(uint256 => Info) public infoOf;
     uint256 public lastId = 0;
+    uint256 pricePerSupply;
 
-    constructor(address owner, string memory tokenURI) Owned(owner) {
-        baseURI = tokenURI;
+    constructor(address owner, string memory _baseURI, uint256 _pricePerSupply) Owned(owner) {
+        baseURI = _baseURI;
+        pricePerSupply = _pricePerSupply;
     }
 
     // ======= PUBLIC FUNCTIONS ========
@@ -34,7 +38,7 @@ contract Collection is ERC1155, Owned {
         return string(abi.encodePacked(baseURI, LibString.toString(id)));
     }
 
-    function create(address creator, uint256 supply) public onlyOwner returns (uint256) {
+    function create(address creator, uint256 supply) public payable returns (uint256) {
         uint256 id = lastId + 1;
         Info storage info = infoOf[id];
         if (info.supply != 0 || info.minted != 0 || info.creator != address(0)) {
@@ -46,13 +50,21 @@ contract Collection is ERC1155, Owned {
         if (supply == 0) {
             revert ZeroSupply();
         }
+        if (supply < 10) {
+            revert SupplyLessThanTen();
+        }
+        if (msg.value < (supply * pricePerSupply)) {
+            revert NotEnoughValue();
+        }
+
         infoOf[id].creator = creator;
         infoOf[id].supply = supply;
-        mint(creator, id);
         lastId = id;
 
-        emit Created(creator, id, supply);
+        mint(creator, id);
+        payable(owner).transfer(msg.value);
 
+        emit Created(creator, id, supply);
         return id;
     }
 

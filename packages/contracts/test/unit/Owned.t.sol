@@ -8,9 +8,10 @@ import { BaseTest } from "../Base.t.sol";
 contract OwnedTest is BaseTest {
     function test_TransferOwnership() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
 
         address secondOwner = address(0xacef);
@@ -34,7 +35,7 @@ contract OwnedTest is BaseTest {
         vm.assume(owner != nonOwner);
         vm.assume(owner != secondOwner);
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
 
         vm.prank(nonOwner);
@@ -49,18 +50,19 @@ contract OwnedTest is BaseTest {
 
     function test_OnlyOwnerCreates() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
 
         address creator = address(0xdead);
         uint256 supply = 10;
         vm.expectRevert("UNAUTHORIZED");
-        collection.create(creator, supply);
+        collection.create{ value: 1 ether }(creator, supply);
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
         assertEq(cCreator, creator);
@@ -83,17 +85,20 @@ contract OwnedTest is BaseTest {
         vm.assume(owner != nonOwner);
         vm.assume(owner != creator);
         vm.assume(creator != address(0));
-        vm.assume(supply > 0);
+        supply = bound(supply, 10, 10_000);
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0000001 ether);
         assertEq(collection.owner(), owner);
+
+        vm.deal(nonOwner, 1 ether);
+        vm.deal(owner, 1 ether);
 
         vm.prank(nonOwner);
         vm.expectRevert("UNAUTHORIZED");
-        collection.create(creator, supply);
+        collection.create{ value: 1 ether }(creator, supply);
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
         assertEq(cCreator, creator);
@@ -103,16 +108,17 @@ contract OwnedTest is BaseTest {
 
     function test_OnlyOwnerMints() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
 
         address creator = address(0xbeef);
         uint256 supply = 10;
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         address minter = address(0xdead);
         vm.expectRevert("UNAUTHORIZED");
@@ -148,13 +154,14 @@ contract OwnedTest is BaseTest {
         vm.assume(owner != minter);
         vm.assume(creator != address(0));
         vm.assume(minter != address(0));
-        vm.assume(supply > 1);
+        supply = bound(supply, 10, 10_000);
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0000001 ether);
         assertEq(collection.owner(), owner);
 
+        vm.deal(owner, 1 ether);
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         vm.prank(nonOwner);
         vm.expectRevert("UNAUTHORIZED");
