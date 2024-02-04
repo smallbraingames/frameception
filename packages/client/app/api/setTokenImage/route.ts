@@ -14,11 +14,11 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
   const url = body.url as string | undefined;
 
   if (!url) {
-    return NextResponse.json({ message: 'Invalid url' }, { status: 500 });
+    return NextResponse.json({ message: 'Invalid url' }, { status: 400 });
   }
 
   if (!hash || hash.slice(0, 2) !== '0x') {
-    return NextResponse.json({ message: 'Invalid hash' }, { status: 500 });
+    return NextResponse.json({ message: 'Invalid hash' }, { status: 400 });
   }
 
   const transactionReceipt = await getTransactionReceipt(hash);
@@ -28,7 +28,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
     );
     return NextResponse.json(
       { message: 'Invalid transaction' },
-      { status: 500 }
+      { status: 400 }
     );
   }
 
@@ -42,7 +42,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
 
     return NextResponse.json(
       { message: 'Invalid to address' },
-      { status: 500 }
+      { status: 400 }
     );
   }
 
@@ -55,7 +55,7 @@ const getResponse = async (req: NextRequest): Promise<NextResponse> => {
       )}`
     );
 
-    return NextResponse.json({ message: 'Invalid receipt' }, { status: 500 });
+    return NextResponse.json({ message: 'Invalid receipt' }, { status: 400 });
   }
 
   const key = getTokenImageKVKey(tokenId);
