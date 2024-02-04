@@ -1,5 +1,4 @@
 import { usePrivy } from '@privy-io/react-auth';
-import { Address } from 'viem';
 
 const ConnectButton = () => {
   const { ready, authenticated, user, login, logout } = usePrivy();

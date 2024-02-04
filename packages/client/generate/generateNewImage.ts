@@ -8,7 +8,7 @@ export const generateNewImage = async (prompt: string) => {
     auth: process.env.REPLICATE_API_TOKEN,
   });
   const prediction = await replicate.predictions.create({
-    version: 'ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4',
+    version: '53a8078c87ad900402a246bf5e724fa7538cf15c76b0a22753594af58850a0e3',
     input: {
       prompt,
     },

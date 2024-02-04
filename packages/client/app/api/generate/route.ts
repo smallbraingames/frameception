@@ -1,7 +1,7 @@
 import getGenerateFrame from '@/frames/getGenerateFrame';
 import validateFrameRequest from '@/frames/validateFrameRequest';
 import getImageUrl from '@/generate/getImageUrl';
-import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit';
+import { FrameRequest } from '@coinbase/onchainkit';
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 

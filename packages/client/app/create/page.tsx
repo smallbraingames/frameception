@@ -123,7 +123,7 @@ const Create = () => {
       {user ? (
         <div className='flex flex-col gap-2 text-xs'>
           <p>
-            You're connected as {formatAddress(address)} (
+            You&apos;re connected as {formatAddress(address)} (
             <button onClick={logout} className='border-b-2 border-gray-400'>
               change wallet
             </button>
@@ -134,7 +134,7 @@ const Create = () => {
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
             Today is the day you have the opportunity to create a frame within a
-            frame. Your frame will let others mint this image and after, they'll
+            frame. Your frame will let others mint this image and after, they&apos;ll
             have the option to create their own.
           </p>
           {url && <img src={url} className='w-full ' />}
@@ -186,7 +186,7 @@ const Create = () => {
           </button>
 
           <p className='py-2 text-xs'>
-            The first {supply} collectors will mint for free. We'll use some of
+            The first {supply} collectors will mint for free. We&apos;ll use some of
             the {cost} to pay for gas.
           </p>
         </div>

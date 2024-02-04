@@ -47,7 +47,7 @@ const Gallery = () => {
     return { topHolders, topCreators };
   };
 
-  const { topHolders, topCreators } = parseInfoMap();
+  const { topHolders } = parseInfoMap();
 
   return (
     <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 pb-10'>

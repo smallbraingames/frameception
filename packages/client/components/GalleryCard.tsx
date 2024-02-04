@@ -35,7 +35,7 @@ const GalleryCard = ({
     return (
       <p>
         {truncatedList.map((address) => (
-          <Name address={address} />
+          <Name address={address} key={address} />
         ))}{' '}
         {holders.size > maxLength ? ', ...' : ''}
       </p>
