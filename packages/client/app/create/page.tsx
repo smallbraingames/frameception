@@ -4,9 +4,10 @@ import ConnectButton from '@/components/ConnectButton';
 import chain from '@/mint/chain';
 import getTransactionReceipt from '@/mint/getTransactionReceipt';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Address, createWalletClient, custom } from 'viem';
-import { useSearchParams } from 'next/navigation'
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -17,9 +18,10 @@ const Create = () => {
   const { user } = usePrivy();
   const { wallets } = useWallets();
   const [supply, setSupply] = useState(1000);
-  const searchParams = useSearchParams()
-  const url = searchParams.get('url')
+  const searchParams = useSearchParams();
+  const url = searchParams.get('url');
   const [error, setError] = useState<string | null>(null);
+  const [tokenId, setTokenId] = useState<number | null>(null);
   const address = user?.wallet?.address as Address | undefined;
 
   const getWalletClient = async () => {
@@ -66,6 +68,7 @@ const Create = () => {
       const json = await res.json();
       const tokenId = json.id as number;
       console.log('[Create] Token created with tokenId', tokenId);
+      setTokenId(tokenId);
       return tokenId;
     } catch (e) {
       console.error('[Create] Failed to register payment and create token', e);
@@ -77,32 +80,58 @@ const Create = () => {
   return (
     <div className='max-w-md mx-auto'>
       <ConnectButton />
-      {
-        url && (
-          <div className='py-2'>
-            <img src={url} className='w-full' />
-          </div>
-        )
-      }
+      {url && (
+        <div className='py-2'>
+          <img src={url} className='w-full' />
+        </div>
+      )}
       <div className='py-2'>
         <label className='block text-stone-100 font-bold'>Supply</label>
-      <div className='flex'>
-        <button onClick={() => setSupply(100)} className={`  ${supply === 100 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>100</button>
-        <button onClick={() => setSupply(1000)} className={`  ${supply === 1000 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>1,000</button>
-        <button onClick={() => setSupply(10000)} className={`  ${supply === 10000 ? "bg-stone-900" : "bg-stone-800" } p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}>10,000</button>
-      </div>
+        <div className='flex'>
+          <button
+            onClick={() => setSupply(100)}
+            className={`  ${supply === 100 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+          >
+            100
+          </button>
+          <button
+            onClick={() => setSupply(1000)}
+            className={`  ${supply === 1000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+          >
+            1,000
+          </button>
+          <button
+            onClick={() => setSupply(10000)}
+            className={`  ${supply === 10000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+          >
+            10,000
+          </button>
+        </div>
       </div>
       <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
         <button onClick={create} type='button' className='h-full w-full'>
           Create Token ({supply * 0.0001} ETH)
         </button>
       </div>
-      {
-        error && (
-          <div className='text-red-500'>{error}</div>
-        )
-      }
-
+      {error && <div className='text-red-500'>{error}</div>}
+      {tokenId && (
+        <div>
+          <p>
+            Your new frame link: {`${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`}{' '}
+          </p>
+          {/* copy button */}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `${process.env.NEXT_PUBLIC_URL}/frame/${tokenId}`
+              );
+              toast.success('Copied to clipboard');
+            }}
+          >
+            Copy link
+          </button>
+        </div>
+      )}
     </div>
   );
 };
