@@ -3,11 +3,13 @@
 import ConnectButton from '@/components/ConnectButton';
 import chain from '@/mint/chain';
 import create from '@/mint/create';
+import { getReadCollectionContract } from '@/mint/getCollectionContract';
+import publicClient from '@/mint/publicClient';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Address, createWalletClient, custom } from 'viem';
+import { Address, createWalletClient, custom, formatEther } from 'viem';
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -22,7 +24,14 @@ const Create = () => {
   const url = searchParams.get('url');
   const [error, setError] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<number | null>(null);
+  const [pricePerSupply, setPricePerSupply] = useState<bigint | null>(null);
   const address = user?.wallet?.address as Address | undefined;
+
+  useEffect(() => {
+    getReadCollectionContract(publicClient)
+      .read.pricePerSupply()
+      .then((p) => setPricePerSupply(p as bigint));
+  }, []);
 
   const getWalletClient = async () => {
     if (!address) {
@@ -46,14 +55,33 @@ const Create = () => {
       console.error('[Create] No wallet client found');
       return;
     }
+
+    // Check that the token ID can be set on the server before taking payment
+    const nextTokenId =
+      Number(await getReadCollectionContract(publicClient).read.lastId()) + 1;
+    const checkRes = await fetch('/api/canSetTokenId', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: nextTokenId }),
+    });
+    const canSetTokenId = (await checkRes.json()).value as boolean;
+    if (!canSetTokenId) {
+      console.error('[Create] Invalid token ID or URL');
+      setError('Invalid token ID or URL');
+      return;
+    }
+
+    // Send transaction
     const receipt = await create(walletClient, supply);
     console.log('[Create] Transaction sent', receipt);
-
     if (receipt.status === 'reverted') {
       console.error('[Create] Transaction reverted', receipt);
       return;
     }
 
+    // Set URL on server
     try {
       const res = await fetch('/api/setTokenImage', {
         method: 'POST',
@@ -62,6 +90,9 @@ const Create = () => {
         },
         body: JSON.stringify({ hash: receipt.transactionHash, url }),
       });
+      if (res.status !== 200) {
+        throw Error((await res.json()).message);
+      }
       const json = await res.json();
       const tokenId = json.id as number;
       console.log('[Create] Token created with tokenId', tokenId);
@@ -81,34 +112,48 @@ const Create = () => {
           <img src={url} className='w-full' />
         </div>
       )}
-      <div className='py-2'>
-        <label className='block text-stone-100 font-bold'>Supply</label>
-        <div className='flex'>
-          <button
-            onClick={() => setSupply(100)}
-            className={`  ${supply === 100 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
-          >
-            100
-          </button>
-          <button
-            onClick={() => setSupply(1000)}
-            className={`  ${supply === 1000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
-          >
-            1,000
-          </button>
-          <button
-            onClick={() => setSupply(10000)}
-            className={`  ${supply === 10000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
-          >
-            10,000
-          </button>
+
+      {!tokenId && (
+        <div>
+          <div className='py-2'>
+            <label className='block text-stone-100 font-bold'>Supply</label>
+            <div className='flex'>
+              <button
+                onClick={() => setSupply(100)}
+                className={`  ${supply === 100 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+              >
+                100
+              </button>
+              <button
+                onClick={() => setSupply(500)}
+                className={`  ${supply === 500 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+              >
+                500
+              </button>
+              <button
+                onClick={() => setSupply(1000)}
+                className={`  ${supply === 1000 ? 'bg-stone-900' : 'bg-stone-800'} p-2 text-center font-bold text-stone-100 hover:bg-stone-900`}
+              >
+                1,000
+              </button>
+            </div>
+          </div>
+          <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
+            <button
+              onClick={createToken}
+              type='button'
+              className='h-full w-full'
+            >
+              Get Frame Link (
+              {pricePerSupply
+                ? formatEther(BigInt(supply) * pricePerSupply)
+                : '-'}{' '}
+              ETH)
+            </button>
+          </div>
         </div>
-      </div>
-      <div className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'>
-        <button onClick={createToken} type='button' className='h-full w-full'>
-          Create Token ({supply * 0.0001} ETH)
-        </button>
-      </div>
+      )}
+
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
         <div>
