@@ -8,14 +8,15 @@ import { BaseTest } from "../Base.t.sol";
 contract URITest is BaseTest {
     function test_URI() external {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
         vm.prank(owner);
-        uint256 id = collection.create(owner, 10);
+        uint256 id = collection.create{ value: 1 ether }(owner, 10);
         assertEq(collection.uri(id), "https://example.com/1");
     }
 }

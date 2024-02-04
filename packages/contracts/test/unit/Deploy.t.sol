@@ -9,13 +9,13 @@ contract DeployTest is BaseTest {
     function test_CreateCollection() external {
         address owner = address(0xcafe);
         string memory tokenURI = "https://example.com/";
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
     }
 
     function testFuzz_CreateCollection(address owner, string memory tokenURI) external {
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
     }

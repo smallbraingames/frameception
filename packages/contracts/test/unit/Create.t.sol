@@ -8,17 +8,18 @@ import { BaseTest } from "../Base.t.sol";
 contract CreateTest is BaseTest {
     function test_CreateToken() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
         address creator = address(0xdead);
-        uint256 supply = 10;
+        uint256 supply = 20;
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
 
@@ -30,13 +31,14 @@ contract CreateTest is BaseTest {
     function testFuzz_CreateToken(address owner, string memory tokenURI, address creator, uint256 supply) external {
         assumeValidPayableAddress(owner);
         assumeValidPayableAddress(creator);
-        vm.assume(supply > 0);
-        Collection collection = new Collection(owner, tokenURI);
+        supply = bound(supply, 20, 10_000);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
+        vm.deal(owner, 1 ether);
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
 
         (uint256 cSupply, uint256 cMinted, address cCreator) = collection.infoOf(id);
 
@@ -47,9 +49,10 @@ contract CreateTest is BaseTest {
 
     function test_RevertsWhen_ZeroSupply() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
@@ -58,14 +61,15 @@ contract CreateTest is BaseTest {
 
         vm.prank(owner);
         vm.expectRevert(Collection.ZeroSupply.selector);
-        collection.create(creator, supply);
+        collection.create{ value: 1 ether }(creator, supply);
     }
 
     function test_RevertsWhen_ZeroAddressCreator() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
@@ -74,14 +78,15 @@ contract CreateTest is BaseTest {
 
         vm.prank(owner);
         vm.expectRevert(Collection.ZeroAddressCreator.selector);
-        collection.create(creator, supply);
+        collection.create{ value: 1 ether }(creator, supply);
     }
 
     function test_IncrementsIds() public {
         address owner = address(0xface);
+        vm.deal(owner, 1 ether);
         string memory tokenURI = "https://example.com/";
 
-        Collection collection = new Collection(owner, tokenURI);
+        Collection collection = new Collection(owner, tokenURI, 0.0001 ether);
         assertEq(collection.owner(), owner);
         assertEq(collection.baseURI(), tokenURI);
 
@@ -89,19 +94,19 @@ contract CreateTest is BaseTest {
         uint256 supply = 10;
 
         vm.prank(owner);
-        uint256 id = collection.create(creator, supply);
+        uint256 id = collection.create{ value: 1 ether }(creator, supply);
         assertEq(id, 1);
 
         vm.prank(owner);
-        id = collection.create(creator, supply);
+        id = collection.create{ value: 1 ether }(creator, supply);
         assertEq(id, 2);
 
         vm.prank(owner);
-        id = collection.create(creator, supply);
+        id = collection.create{ value: 1 ether }(creator, supply);
         assertEq(id, 3);
 
         vm.prank(owner);
-        id = collection.create(creator, supply);
+        id = collection.create{ value: 1 ether }(creator, supply);
         assertEq(id, 4);
     }
 }
