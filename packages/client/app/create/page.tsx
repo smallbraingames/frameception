@@ -6,11 +6,11 @@ import create from '@/mint/create';
 import { getReadCollectionContract } from '@/mint/getCollectionContract';
 import publicClient from '@/mint/publicClient';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Address, createWalletClient, custom, formatEther } from 'viem';
-import Link from 'next/link';
 
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
@@ -109,26 +109,31 @@ const Create = () => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
   };
 
-  const cost = `${pricePerSupply ?  formatEther(BigInt(supply) * pricePerSupply) : "-" } ETH`; 
+  const cost = `${pricePerSupply ? formatEther(BigInt(supply) * pricePerSupply) : '-'} ETH`;
 
   return (
     <div className='max-w-sm mx-auto pt-10'>
       {user ? (
         <div className='flex flex-col gap-2 text-xs'>
-          <p>You're connected as {formatAddress(address)}. <button onClick={logout} className='border-b-2 border-gray-400'>Change wallet</button></p>
-
+          <p>
+            You're connected as {formatAddress(address)}.{' '}
+            <button onClick={logout} className='border-b-2 border-gray-400'>
+              Change wallet
+            </button>
+          </p>
         </div>
       ) : (
         <div className='flex flex-col gap-4'>
-          <p className="text-sm">
-            You
-            arrived here from a frame and now you have the opportunity to
-            create a frame within a frame. The frame you create will let others mint the image you created.
+          <p className='text-sm'>
+            You arrived here from a frame and now you have the opportunity to
+            create a frame within a frame. The frame you create will let others
+            mint the image you created.
           </p>
-          { url && <img src={url} className='w-full ' />}
-    
-          <p className="text-sm">
-            Connect your wallet and create a frame link that'll let collectors mint for free.
+          {url && <img src={url} className='w-full ' />}
+
+          <p className='text-sm'>
+            Connect your wallet and create a frame link that'll let collectors
+            mint for free.
           </p>
           <ConnectButton />
         </div>
@@ -140,12 +145,12 @@ const Create = () => {
         </div>
       )}
 
-
-
       {!tokenId && user && (
         <div>
           <div className=''>
-            <p className='text-sm pb-2'>How many NFTs would you like to distribute?</p>
+            <p className='text-sm pb-2'>
+              How many NFTs would you like to distribute?
+            </p>
             <div className='flex gap-2'>
               <button
                 onClick={() => setSupply(100)}
@@ -175,14 +180,16 @@ const Create = () => {
             >
               Get Frame Link ({cost})
             </button>
-            
           </div>
-          <p className='py-2 text-xs'>The first {supply} collectors will mint the NFT for free. We'll use some of the {cost} to pay for gas.</p>
+          <p className='py-2 text-xs'>
+            The first {supply} collectors will mint the NFT for free. We'll use
+            some of the {cost} to pay for gas.
+          </p>
         </div>
       )}
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
-          <button
+        <button
           className='w-full rounded-sm bg-stone-800 p-2 text-center font-bold text-stone-100 hover:bg-stone-900'
           onClick={() => {
             navigator.clipboard.writeText(
@@ -194,7 +201,17 @@ const Create = () => {
           Copy Your Frame Link
         </button>
       )}
-      <p className='text-xs pt-2'>Copy and cast your frame link on <Link className='border-b-2 border-gray-400' href="https://warpcast.com" target="_blank">Warpcast</Link>.</p>
+      <p className='text-xs pt-2'>
+        Copy and cast your frame link on{' '}
+        <Link
+          className='border-b-2 border-gray-400'
+          href='https://warpcast.com'
+          target='_blank'
+        >
+          Warpcast
+        </Link>
+        .
+      </p>
     </div>
   );
 };
