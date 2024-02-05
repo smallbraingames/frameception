@@ -2,7 +2,6 @@ import { TokenInfo } from '@/indexing/getCollectionInfo';
 import logo from '@/public/logo.png';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Address } from 'viem';
 
 import Name from './Name';
 
@@ -26,21 +25,6 @@ const GalleryCard = ({
           setImageUrl(data.image);
       });
   }, [id]);
-
-  const truncateHolderList = (
-    holders: Map<Address, number>,
-    maxLength: number
-  ) => {
-    const truncatedList = Array.from(holders.keys()).slice(0, maxLength);
-    return (
-      <p>
-        {truncatedList.map((address) => (
-          <Name address={address} key={address} />
-        ))}{' '}
-        {holders.size > maxLength ? ', ...' : ''}
-      </p>
-    );
-  };
 
   const firstHolder = tokenInfo.holders.keys().next().value;
   const holderCount = tokenInfo.holders.size;

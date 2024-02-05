@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Address, createWalletClient, custom, formatEther } from 'viem';
 
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_COLLECTION_CONTRACT_ADDRESS;
+
 const ownerPublicKey = process.env.NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY;
 if (!ownerPublicKey) {
   throw new Error('[Create] Missing NEXT_PUBLIC_OWNER_WALLET_PUBLIC_KEY');
@@ -29,6 +31,7 @@ const Create = () => {
   const [pricePerSupply, setPricePerSupply] = useState<bigint | null>(null);
   const address = user?.wallet?.address as Address | undefined;
   const [isCreating, setIsCreating] = useState(false);
+
 
   useEffect(() => {
     getReadCollectionContract(publicClient)
@@ -120,6 +123,7 @@ const Create = () => {
 
   return (
     <div className='max-w-sm mx-auto pt-10'>
+      <h1 className="text-2xl font-bold mb-2"> Create your NFT Frame</h1>
       {user ? (
         <div className='flex flex-col gap-2 text-xs'>
           <p>
@@ -133,9 +137,7 @@ const Create = () => {
       ) : (
         <div className='flex flex-col gap-4'>
           <p className='text-sm'>
-            Today is the day you have the opportunity to create a frame within a
-            frame. Your frame will let others mint this image and after, they&apos;ll
-            have the option to create their own.
+            Turn your masterpiece into a frame that others can mint within. 
           </p>
           {url && <img src={url} className='w-full ' />}
 
@@ -177,6 +179,13 @@ const Create = () => {
             </div>
           </div>
 
+          {/* <div className="flex items-center gap-2 mt-1">
+          <label className="flex items-center">
+            <input type="radio" name="terms" className="form-radio" />
+              <span className="ml-2">I've </span>
+          </label>
+        </div> */}
+
           <button
             onClick={createToken}
             type='button'
@@ -186,11 +195,18 @@ const Create = () => {
           </button>
 
           <p className='py-2 text-xs'>
-            The first {supply} collectors will mint for free. We&apos;ll use some of
-            the {cost} to pay for gas.
+            By creating this frame link, you adding a new token with your art to a <a className="border-b-2 border-gray-400"href={`https://basescan.org/address/${CONTRACT_ADDRESS}`}target='_blank'
+              rel='noreferrer'> shared ERC1155 contract on Base. </a>
           </p>
+          <p className='text-xs'>
+            {supply} collectors will mint for free. We use the funds to cover the 
+           to pay for gas & generation fees.
+          </p>
+         
         </div>
       )}
+
+
       {error && <div className='text-red-500'>{error}</div>}
       {tokenId && (
         <div className='flex flex-col gap-2'>

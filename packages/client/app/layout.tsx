@@ -32,12 +32,6 @@ const RootLayout = ({
               />
             </div>
           </a>
-          <div>
-            <h1 className='text-xl tracking-tight'>Frameception</h1>
-          </div>
-          <div className='p-1 text-xs bg-blue-100 text-blue-500 rounded-sm'>
-            Beta
-          </div>
 
           <div className='grow' />
 

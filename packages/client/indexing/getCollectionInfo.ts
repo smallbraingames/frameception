@@ -55,16 +55,20 @@ const getBasescanLogs = async (contractAddress: Address): Promise<Logs> => {
 
   const decodedLogs: Logs = [];
   for (const log of response.result) {
-    const decodedLog = decodeEventLog({
-      abi: LOGS_ABI,
-      data: log.data,
-      topics: log.topics,
-      strict: false,
-    });
-    decodedLogs.push({
-      log: decodedLog,
-      blockNumber: parseInt(response.blockNumber),
-    });
+    try {
+      const decodedLog = decodeEventLog({
+        abi: LOGS_ABI,
+        data: log.data,
+        topics: log.topics,
+        strict: false,
+      });
+      decodedLogs.push({
+        log: decodedLog,
+        blockNumber: parseInt(response.blockNumber),
+      });
+    } catch (e) {
+      console.warn("[Get Collection Logs] Error parsing basescan log", e);
+    }
   }
 
   return decodedLogs;

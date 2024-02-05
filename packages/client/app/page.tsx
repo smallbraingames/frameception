@@ -13,7 +13,7 @@ const frameMetadata = getFrameMetadata({
   input: {
     text: 'Write your prompt here',
   },
-  image: `${NEXT_PUBLIC_URL}/dummy.png`,
+  image: `${NEXT_PUBLIC_URL}/logo.png`,
   post_url: `${NEXT_PUBLIC_URL}/api/generate`,
 });
 
@@ -23,7 +23,7 @@ export const metadata = {
   openGraph: {
     title: 'Frameception',
     description: 'Create a frame within a frame.',
-    images: [`${NEXT_PUBLIC_URL}/dummy.png`],
+    images: [`${NEXT_PUBLIC_URL}/logo.png`],
   },
   other: {
     ...frameMetadata,
@@ -35,7 +35,7 @@ export default function Home() {
     <main className='flex p-2'>
       <div className='flex flex-row w-full max-w-screen-2xl mx-auto'>
         <div className='w-full'>
-          <h1 className='text-3xl my-8 font-bold'>A Frame Within a Frame</h1>
+          <div className='flex flex-row justify-between'></div>
           <CollectionProvider>
             <Gallery />
           </CollectionProvider>

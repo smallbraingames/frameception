@@ -42,6 +42,7 @@ const fidQuery = gql`
       }
     ) {
       Social {
+        userId
         profileName
         userAddress
         userAssociatedAddresses
@@ -75,7 +76,9 @@ const getFarcasterNames = async (addresses: Address[]) => {
     return fids;
   };
 
+
   const fids = await getFidsForAddresses(addresses);
+  console.log("got fids", fids);
   const fidAddress = new Map(fids.map((fid, index) => [fid, addresses[index]]));
   const fidBatches = getBatches(
     fids.filter((fid) => fid !== -1),
@@ -101,8 +104,12 @@ const getFarcasterNames = async (addresses: Address[]) => {
       continue;
     }
     for (const resolved of response.Socials.Social) {
+
+      console.log("resolved", resolved);
       const { profileName, userId } = resolved;
+      console.log('uer id', userId, parseInt(userId));
       const address = fidAddress.get(parseInt(userId));
+      console.log("got address", address, fidAddress);
       if (address) {
         farcasterNames.set(getAddress(address), profileName);
       }
